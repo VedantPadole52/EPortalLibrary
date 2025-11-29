@@ -402,8 +402,8 @@ Create an engaging summary that captures the essence of the book for library use
   app.get("/api/categories/:id/books", async (req, res) => {
     try {
       const categoryId = parseInt(req.params.id);
-      const allBooks = await storage.getAllBooks();
-      const filtered = allBooks.filter(b => b.categoryId === categoryId);
+      const booksData = await storage.getAllBooks();
+      const filtered = (booksData.books || []).filter((b: any) => b.categoryId === categoryId);
       res.json({ books: filtered });
     } catch (error: any) {
       res.status(500).json({ message: "Failed to fetch books", error: error.message });
