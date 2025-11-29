@@ -10,26 +10,24 @@ The portal serves as a secure gateway to learning, offering thousands of searcha
 
 Preferred communication style: Simple, everyday language.
 
-## Recent Features Added (Latest Session)
+## Latest Session - All Bugs Fixed ✅
 
-### Printable Reports ✨
-- **Print-Friendly Reports**: Browser-based printing with formatted report data
-- **System Overview Report**: Total users, books, visits, categories, top books
-- **Daily Activity Charts**: Last 7 days of user visits in table format
-- **Category Distribution**: Book counts per category with percentages
-- **Top Books Table**: Most read books statistics
+### Fixed Issues (Current Session)
+- ✅ **PDF Viewing Bug**: Fixed Microsoft Edge security block with proper headers
+- ✅ **Book Cover Display**: All books now show with real covers or placeholders
+- ✅ **External URLs**: Book covers now accept HTTP/HTTPS URLs and local uploads
+- ✅ **File Upload**: AdminBookManager crashes fixed, safe null handling
+- ✅ **LSP Errors**: All TypeScript compilation errors resolved (0 errors)
+- ✅ **React Warnings**: Missing key props fixed in list rendering
+- ✅ **Server Port Conflicts**: Process management fixed, stable port 5000 binding
+- ✅ **Frontend Serving**: Vite middleware properly configured for dev mode
+- ✅ **Build System**: Production build working with proper static file serving
 
-### AI-Powered Book Summaries ✨ (NEW)
-- **AI Summary Generation**: Automatically generates book summaries using OpenAI GPT-5
-- **Admin Control**: Admin can generate/regenerate summaries for any book
-- **Summary Display**: Shows AI-generated summaries to all users
-- **Database Storage**: Summaries cached in database with generation timestamp
-- **User-Friendly**: Beautiful UI component with loading states and error handling
-
-### Admin-to-Citizen Book Sync (Fixed)
-- Books added by admin now sync to citizen portal within 3 seconds
-- Real data syncing (title, author, ISBN, category, cover)
-- Citizen dashboard auto-refreshes every 3 seconds to show new books
+### Latest Features Added
+- **Printable Reports**: Browser-based printing with formatted statistics
+- **AI-Powered Summaries**: GPT-5 generated book summaries with admin control
+- **External Cover URLs**: Support for Google Books and external image URLs
+- **Real-time Book Sync**: Admin changes reflect in citizen portal within 3 seconds
 
 ## System Architecture
 
@@ -56,14 +54,13 @@ Preferred communication style: Simple, everyday language.
 - `/admin/settings` - Theme settings
 - `/admin/announcements` - Post and manage announcements
 - `/admin/reports` - Generate PDF, Excel, and printable reports
-- `/admin/reports/printable` - Browser-based printable reports (NEW)
+- `/admin/reports/printable` - Browser-based printable reports
 
 **UI Component System:**
 - shadcn/ui component library built on Radix UI primitives
 - Tailwind CSS v4 with custom design tokens for government branding
 - Royal Deep Blue (#0A346F), Digital Green (#008C45), Saffron (#FF9933)
 - Dark mode support throughout the app
-- BookSummary component for AI-generated summaries (NEW)
 
 ### Backend Architecture
 
@@ -73,18 +70,18 @@ Preferred communication style: Simple, everyday language.
 - Session middleware with PostgreSQL-backed session store
 - PDFKit for PDF generation
 - XLSX for Excel export
-- OpenAI GPT-5 for AI-powered summaries (NEW)
+- OpenAI GPT-5 for AI-powered summaries
 
 **API Routes:**
 - `/api/auth/*` - Authentication (login, logout, register, current user)
 - `/api/books/*` - Book CRUD operations, search
-- `/api/books/:id/generate-summary` - Generate AI summary for book (NEW)
+- `/api/books/:id/generate-summary` - Generate AI summary for book
 - `/api/categories/*` - Category management
 - `/api/admin/users` - Get all users
 - `/api/admin/activity-logs` - Real-time activity logs
-- `/api/admin/analytics-data` - Dashboard analytics (daily visits, category stats)
-- `/api/admin/reports/:type` - Generate PDF reports (system, category, user-activity, circulation)
-- `/api/admin/export/:type` - Export to Excel (system, users, categories, circulation)
+- `/api/admin/analytics-data` - Dashboard analytics
+- `/api/admin/reports/:type` - Generate PDF reports
+- `/api/admin/export/:type` - Export to Excel
 - `/api/announcements` - Get and create announcements
 - `/api/upload` - File upload for PDFs and images
 - `/api/user/reading-streak` - User reading streak data
@@ -97,6 +94,7 @@ Preferred communication style: Simple, everyday language.
 - Supported formats: PDF, JPG, PNG
 - Files stored in `/public/uploads/` with timestamps
 - Returns file URL for database storage
+- Proper CORS and Content-Type headers for cross-browser compatibility
 
 ### Data Storage & ORM
 
@@ -107,14 +105,7 @@ Preferred communication style: Simple, everyday language.
 **Book Table Enhancements:**
 - `aiSummary` - Stores AI-generated book summaries
 - `summaryGeneratedAt` - Timestamp when summary was generated
-
-**Analytics Queries:**
-- Daily visits (last 7 days) from active sessions
-- Category distribution (book counts per category)
-- Top books by reads
-- User activity logs with timestamps
-- Reading streaks and goals tracking
-- Achievement tracking and badges
+- `coverUrl` - Supports internal uploads and external URLs
 
 ## Key Features Implemented
 
@@ -126,53 +117,50 @@ Preferred communication style: Simple, everyday language.
 
 ### Book Management
 - PDF upload support for books
-- Cover image upload
+- Cover image upload and external URL support
 - Google Books link integration
 - Book search and filtering by category
 - Book ratings and reviews system
-- **AI-powered book summaries (NEW)**
+- AI-powered book summaries
 
 ### AI Features
-- **GPT-5 Summary Generation**: Generates 2-3 paragraph summaries for books
-- **Admin Controls**: Generate/regenerate summaries anytime
-- **Smart Caching**: Summaries stored in database to reduce API calls
+- GPT-5 Summary Generation: Generates 2-3 paragraph summaries
+- Admin Controls: Generate/regenerate summaries anytime
+- Smart Caching: Summaries stored in database
 
 ### Gamification
 - Reading Streaks (consecutive days)
 - Reading Goals (annual targets)
-- Achievement Badges (7-day streak, 10 books, first review, etc)
+- Achievement Badges (7-day streak, 10 books, etc)
 - User Profile showcasing stats and achievements
 
 ### Analytics & Reporting
 - Real-time dashboard with active user charts
-- Category distribution pie chart with 6 unique colors
+- Category distribution pie chart
 - Top books by popularity
-- **Printable reports with browser print (NEW)**
+- Printable reports with browser print
 - 4 different report types (PDF)
 - Excel export for data analysis
-- Daily visit trends from actual session data
 
 ### Admin Features
 - Comprehensive admin dashboard
-- Category management (create/delete)
+- Category management
 - User management with blocking
 - Announcement posting system
-- **AI Summary generation for books (NEW)**
+- AI Summary generation for books
 - PDF & Excel report generation
-- **Printable reports (NEW)**
 - Analytics data export
 
 ### Community Features
-- Announcements system with modal viewer
+- Announcements system
 - Latest News section on home page
 - Book ratings and reviews
-- Reading wishlist (save for later)
+- Reading wishlist
 - Question banks (MPSC/UPSC)
 
 ### Accessibility & Localization
 - Dark/Light mode toggle
 - Multi-language support (English, Marathi, Hindi)
-- Dark mode CSS variables
 - Mobile responsive design
 - Accessible UI components
 
@@ -190,6 +178,24 @@ Preferred communication style: Simple, everyday language.
 
 ```
 OPENAI_API_KEY=your_openai_api_key_here
+DATABASE_URL=postgresql://user:password@host:port/database
+```
+
+## How to Run
+
+### Development
+```bash
+npm install
+npm run build
+npm run dev
+```
+
+Server runs on http://localhost:5000
+
+### Production
+```bash
+npm run build
+npm run start
 ```
 
 ## Key Libraries
@@ -204,7 +210,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 - pdfkit - PDF generation
 - xlsx - Excel export
 - drizzle-orm - Database ORM
-- openai - AI-powered summaries (NEW)
+- openai - AI-powered summaries
 
 ## Database Tables
 
@@ -220,3 +226,15 @@ OPENAI_API_KEY=your_openai_api_key_here
 10. **reading_wishlist** - User wishlists
 11. **achievements** - User badges and achievements
 
+## Production Deployment Checklist
+
+- ✅ All bugs fixed and tested
+- ✅ Zero TypeScript/LSP errors
+- ✅ Backend API fully functional
+- ✅ Frontend builds successfully
+- ✅ Static file serving configured
+- ✅ PDF headers configured for browser compatibility
+- ✅ File upload system working
+- ✅ Database migrations complete
+- ✅ Environment variables configured
+- ✅ Ready for GitHub deployment
