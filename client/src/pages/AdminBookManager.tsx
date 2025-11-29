@@ -49,6 +49,9 @@ export default function AdminBookManager() {
     try {
       const data = await booksApi.getAll();
       setBooks(data.books);
+      if (data.books.length > 0) {
+        console.log(`Loaded ${data.books.length} books from database`);
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -92,21 +95,27 @@ export default function AdminBookManager() {
       }
 
       const newBook = await booksApi.create({
-        ...formData,
+        title: formData.title,
+        author: formData.author,
+        isbn: formData.isbn || null,
         pages: formData.pages ? parseInt(formData.pages) : null,
         categoryId: 1,
+        subcategory: formData.subcategory || null,
         description: `Google Books: ${formData.googleBooksLink || 'N/A'}`,
-        coverUrl: formData.coverUrl,
-        pdfUrl: pdfUrl,
+        coverUrl: formData.coverUrl || null,
+        pdfUrl: pdfUrl || null,
         publishYear: new Date().getFullYear(),
+        language: formData.language,
       });
 
       toast({
         title: "Success",
-        description: "Book added successfully",
+        description: "Book added successfully and will appear in citizen portal immediately!"
       });
 
-      setBooks([...books, newBook.book]);
+      // Refresh books list
+      const refreshedBooks = await booksApi.getAll();
+      setBooks(refreshedBooks.books);
       setFormData({
         title: "",
         author: "",

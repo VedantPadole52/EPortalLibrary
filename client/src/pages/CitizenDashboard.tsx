@@ -51,6 +51,14 @@ export default function CitizenDashboard() {
     
     loadData();
     loadBookmarks();
+    
+    // Refresh books every 3 seconds to show new admin-added books
+    const interval = setInterval(() => {
+      loadData();
+      loadBookmarks();
+    }, 3000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const loadBookmarks = async () => {
