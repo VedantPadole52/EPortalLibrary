@@ -19,7 +19,6 @@ import {
 import { booksApi, type Book } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
-import BookSummary from "@/components/BookSummary";
 
 export default function AdminBookManager() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -30,7 +29,6 @@ export default function AdminBookManager() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [, setLocation] = useLocation();
-  const [selectedBookForSummary, setSelectedBookForSummary] = useState<Book | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -141,6 +139,70 @@ export default function AdminBookManager() {
     }
   };
 
+  const handleEditBook = (book: Book) => {
+    setEditingId(book.id);
+    setFormData({
+      title: book.title,
+      author: book.author,
+      isbn: book.isbn || "",
+      pages: book.pages?.toString() || "",
+      language: book.language || "English",
+      subcategory: book.subcategory || "",
+      coverUrl: book.coverUrl || "",
+      googleBooksLink: "",
+    });
+    setIsAddingBook(true);
+  };
+
+  const handleUpdateBook = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUploading(true);
+    
+    try {
+      const updatedBook = await booksApi.update(editingId!, {
+        title: formData.title,
+        author: formData.author,
+        isbn: formData.isbn || null,
+        pages: formData.pages ? parseInt(formData.pages) : null,
+        categoryId: 1,
+        subcategory: formData.subcategory || null,
+        description: `Google Books: ${formData.googleBooksLink || 'N/A'}`,
+        coverUrl: formData.coverUrl || null,
+        pdfUrl: null,
+        publishYear: new Date().getFullYear(),
+        language: formData.language,
+      });
+
+      toast({
+        title: "Success",
+        description: "Book updated successfully",
+      });
+
+      setBooks(books.map(b => b.id === editingId ? updatedBook : b));
+      setFormData({
+        title: "",
+        author: "",
+        isbn: "",
+        pages: "",
+        language: "English",
+        subcategory: "",
+        coverUrl: "",
+        googleBooksLink: "",
+      });
+      setPdfFile(null);
+      setIsAddingBook(false);
+      setEditingId(null);
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to update book",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleDeleteBook = async (id: number) => {
     if (!confirm("Are you sure you want to delete this book?")) return;
 
@@ -217,19 +279,32 @@ export default function AdminBookManager() {
              </Button>
           </div>
 
-          {/* Add Book Form */}
+          {/* Add/Edit Book Form */}
           {isAddingBook && (
             <Card className="mb-6 border-blue-200 bg-blue-50">
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-center">
-                  <CardTitle className="text-lg">Add New Book</CardTitle>
-                  <button onClick={() => setIsAddingBook(false)}>
+                  <CardTitle className="text-lg">{editingId ? "Edit Book" : "Add New Book"}</CardTitle>
+                  <button onClick={() => {
+                    setIsAddingBook(false);
+                    setEditingId(null);
+                    setFormData({
+                      title: "",
+                      author: "",
+                      isbn: "",
+                      pages: "",
+                      language: "English",
+                      subcategory: "",
+                      coverUrl: "",
+                      googleBooksLink: "",
+                    });
+                  }}>
                     <X className="h-5 w-5" />
                   </button>
                 </div>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleAddBook} className="space-y-4">
+                <form onSubmit={editingId ? handleUpdateBook : handleAddBook} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="title">Book Title</Label>
@@ -343,8 +418,8 @@ export default function AdminBookManager() {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" className="bg-primary" disabled={uploading} data-testid="button-save-book">
-                      {uploading ? "Uploading..." : "Save Book"}
+                    <Button type="submit" className="bg-primary" disabled={uploading} data-testid={`button-${editingId ? 'update' : 'save'}-book`}>
+                      {uploading ? (editingId ? "Updating..." : "Uploading...") : (editingId ? "Update Book" : "Save Book")}
                     </Button>
                   </div>
                 </form>
@@ -402,16 +477,9 @@ export default function AdminBookManager() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="text-purple-600 border-purple-200 hover:bg-purple-50"
-                          onClick={() => setSelectedBookForSummary(book)}
-                          data-testid={`button-summary-${book.id}`}
-                        >
-                          ✨ Summary
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
                           className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                          onClick={() => handleEditBook(book)}
+                          data-testid={`button-edit-book-${book.id}`}
                         >
                           <Edit2 className="h-4 w-4" />
                         </Button>
@@ -448,35 +516,6 @@ export default function AdminBookManager() {
             </Card>
           </div>
 
-          {/* Book Summary Modal */}
-          {selectedBookForSummary && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedBookForSummary(null)}>
-              <Card className="w-full max-w-2xl max-h-96 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle>{selectedBookForSummary.title}</CardTitle>
-                      <p className="text-sm text-gray-600 mt-1">by {selectedBookForSummary.author}</p>
-                    </div>
-                    <button onClick={() => setSelectedBookForSummary(null)}>
-                      <X className="h-5 w-5" />
-                    </button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <BookSummary 
-                    bookId={selectedBookForSummary.id}
-                    summary={selectedBookForSummary.aiSummary}
-                    isAdmin={true}
-                    onSummaryGenerated={(summary) => {
-                      setBooks(books.map(b => b.id === selectedBookForSummary.id ? {...b, aiSummary: summary} : b));
-                      setSelectedBookForSummary({...selectedBookForSummary, aiSummary: summary});
-                    }}
-                  />
-                </CardContent>
-              </Card>
-            </div>
-          )}
         </main>
       </div>
     </div>
