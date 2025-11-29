@@ -286,6 +286,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTodayVisits(): Promise<number> {
+    // Count from active sessions (actual page visits) first, fallback to reading history
+    const [activeResult] = await db
+      .select({ count: sql<number>`count(distinct ${activeSessions.userId})` })
+      .from(activeSessions)
+      .where(sql`DATE(${activeSessions.connectedAt}) = CURRENT_DATE`);
+    
+    if (activeResult && activeResult.count > 0) {
+      return Number(activeResult.count || 0);
+    }
+    
+    // Fallback to reading history if no active sessions
     const [result] = await db
       .select({ count: sql<number>`count(distinct ${readingHistory.userId})` })
       .from(readingHistory)
@@ -326,21 +337,33 @@ export class DatabaseStorage implements IStorage {
     const now = new Date();
     const sixDaysAgo = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
 
-    // Daily visits for the last 7 days - count distinct active users per day
+    // Daily visits for the last 7 days - count from active sessions (actual visits)
     const dailyVisits = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
       const dateStr = date.toISOString().split('T')[0];
       
-      const [result] = await db
-        .select({ count: sql<number>`count(distinct ${readingHistory.userId})` })
-        .from(readingHistory)
-        .where(sql`DATE(${readingHistory.lastAccessedAt}) = ${dateStr}`);
+      // Try active sessions first
+      const [activeResult] = await db
+        .select({ count: sql<number>`count(distinct ${activeSessions.userId})` })
+        .from(activeSessions)
+        .where(sql`DATE(${activeSessions.connectedAt}) = ${dateStr}`);
+      
+      let visitCount = Number(activeResult?.count || 0);
+      
+      // If no active sessions, use reading history as fallback
+      if (visitCount === 0) {
+        const [readResult] = await db
+          .select({ count: sql<number>`count(distinct ${readingHistory.userId})` })
+          .from(readingHistory)
+          .where(sql`DATE(${readingHistory.lastAccessedAt}) = ${dateStr}`);
+        visitCount = Number(readResult?.count || 0);
+      }
       
       const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()];
       dailyVisits.push({
         date: dayName,
-        visits: Number(result?.count || 0),
+        visits: visitCount,
       });
     }
 

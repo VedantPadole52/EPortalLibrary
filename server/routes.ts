@@ -13,6 +13,7 @@ import multer, { type Multer } from "multer";
 import path from "path";
 import fs from "fs";
 import PDFDocument from "pdfkit";
+import XLSX from "xlsx";
 
 const PgSession = connectPgSimple(session);
 
@@ -611,6 +612,76 @@ export async function registerRoutes(
       doc.end();
     } catch (error: any) {
       res.status(500).json({ message: "Failed to generate report", error: error.message });
+    }
+  });
+
+  // Excel Export Endpoint
+  app.get("/api/admin/export/:type", requireAdmin, async (req, res) => {
+    try {
+      const exportType = req.params.type;
+      const analytics = await storage.getAnalyticsData();
+      const totalUsers = await storage.getTotalUsers();
+      const totalBooks = await storage.getTotalBooks();
+      const todayVisits = await storage.getTodayVisits();
+      const allUsers = await storage.getAllUsers();
+
+      let workbook = XLSX.utils.book_new();
+      const filename = `e-library-export-${exportType}-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      if (exportType === "system") {
+        // Summary sheet
+        const summaryData = [
+          { Metric: "Total Registered Users", Value: totalUsers },
+          { Metric: "Total Books in Catalog", Value: totalBooks },
+          { Metric: "Today's Active Users", Value: todayVisits },
+          { Metric: "Categories", Value: analytics.categoryStats?.length || 0 },
+        ];
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(summaryData), "Summary");
+
+        // Daily visits sheet
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(analytics.dailyVisits), "Daily Visits");
+
+        // Category sheet
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(analytics.categoryStats), "Categories");
+
+        // Top books sheet
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(analytics.topBooks), "Top Books");
+      } else if (exportType === "users") {
+        // Users sheet with details
+        const userData = allUsers.map((user: any) => ({
+          Name: user.name,
+          Email: user.email,
+          Phone: user.phone || "N/A",
+          Role: user.role,
+          Status: user.isBlocked ? "Blocked" : "Active",
+          "Joined Date": new Date(user.createdAt).toLocaleDateString(),
+        }));
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(userData), "Users");
+      } else if (exportType === "categories") {
+        // Category analysis
+        const catData = analytics.categoryStats.map((cat: any) => ({
+          Category: cat.name,
+          "Book Count": cat.count,
+          Percentage: `${((cat.count / (analytics.categoryStats.reduce((s: number, c: any) => s + c.count, 0))) * 100).toFixed(1)}%`,
+        }));
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(catData), "Categories");
+      } else if (exportType === "circulation") {
+        // Book circulation data
+        const circData = analytics.topBooks.map((book: any, idx: number) => ({
+          Rank: idx + 1,
+          "Book Title": book.title,
+          "Times Read": book.reads,
+        }));
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(circData), "Circulation");
+      }
+
+      // Send file
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      const buffer = XLSX.write(workbook, { bookType: "xlsx", type: "buffer" });
+      res.send(buffer);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to export data", error: error.message });
     }
   });
 

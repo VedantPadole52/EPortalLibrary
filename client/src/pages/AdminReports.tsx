@@ -79,13 +79,54 @@ export default function AdminReports() {
 
       toast({
         title: "Success",
-        description: `${reportTypes.find(r => r.id === reportType)?.name} downloaded`,
+        description: `PDF report downloaded successfully`,
       });
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message || "Failed to generate report",
+      });
+    } finally {
+      setGenerating(null);
+    }
+  };
+
+  const exportToExcel = async (exportType: string) => {
+    setGenerating(exportType);
+    try {
+      const response = await fetch(`/api/admin/export/${exportType}`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to export data");
+      }
+
+      const contentDisposition = response.headers.get("content-disposition");
+      const filename = contentDisposition
+        ? contentDisposition.split("filename=")[1].replace(/"/g, "")
+        : `export-${exportType}-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: `Excel file exported successfully`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Failed to export data",
       });
     } finally {
       setGenerating(null);
@@ -148,20 +189,16 @@ export default function AdminReports() {
                       data-testid={`button-download-report-${report.id}`}
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      {generating === report.id ? "Generating..." : "Download PDF"}
+                      {generating === report.id ? "Generating..." : "PDF"}
                     </Button>
                     <Button
-                      variant="outline"
-                      onClick={() => {
-                        toast({
-                          title: "Print Feature",
-                          description: "Download the PDF first, then use your browser's print function",
-                        });
-                      }}
-                      className="dark:border-gray-600"
-                      data-testid={`button-print-report-${report.id}`}
+                      onClick={() => exportToExcel(report.id)}
+                      disabled={generating === report.id}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                      data-testid={`button-export-excel-${report.id}`}
                     >
-                      <Printer className="h-4 w-4" />
+                      <Download className="h-4 w-4 mr-2" />
+                      {generating === report.id ? "Exporting..." : "Excel"}
                     </Button>
                   </div>
                 </CardContent>
