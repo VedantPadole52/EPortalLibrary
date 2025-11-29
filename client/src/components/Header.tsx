@@ -1,8 +1,8 @@
 
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Search, User, Bell, LogOut, Menu, Home as HomeIcon, BookOpen, GraduationCap } from "lucide-react";
-import { useState } from "react";
+import { Search, User, Bell, LogOut, Menu, Home as HomeIcon, BookOpen, GraduationCap, Sun, Moon } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { getTranslation, type Language } from "@/lib/translations";
 
@@ -19,6 +19,41 @@ export default function Header({ variant = "public" }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { language, setLanguage } = useLanguage();
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    const darkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(darkMode);
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    }
+    
+    // Fetch current user name
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/auth/me");
+        if (response.ok) {
+          const data = await response.json();
+          setUserName(data.user?.name || "");
+        }
+      } catch (error) {
+        console.log("Not logged in");
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', String(newDarkMode));
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   const t = (key: string) => getTranslation(language, key as any);
 
@@ -36,12 +71,22 @@ export default function Header({ variant = "public" }: HeaderProps) {
         </div>
         
         <div className="flex items-center gap-4">
-          {variant === "citizen" && (
+          {(variant === "citizen" || variant === "admin") && userName && (
             <div className="flex items-center gap-2 text-blue-900">
-              <span className="font-bold">{t('welcomeBack')}</span>
+              <User className="h-3 w-3" />
+              <span className="font-bold text-sm">{userName}</span>
               <div className="h-3 border-l border-gray-300 mx-1"></div>
             </div>
           )}
+          
+          <button
+            onClick={toggleDarkMode}
+            className="p-1 rounded hover:bg-gray-100 text-gray-600 hover:text-gray-900"
+            data-testid="button-toggle-dark-mode"
+            title={isDarkMode ? "Light Mode" : "Dark Mode"}
+          >
+            {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
           
           <div className="relative">
             <button

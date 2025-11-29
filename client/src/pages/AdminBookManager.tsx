@@ -13,7 +13,8 @@ import {
   Search,
   X,
   FileUp,
-  File
+  File,
+  Settings
 } from "lucide-react";
 import { booksApi, type Book } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +34,8 @@ export default function AdminBookManager() {
     pages: "",
     language: "English",
     subcategory: "",
+    coverUrl: "",
+    googleBooksLink: "",
   });
   const { toast } = useToast();
 
@@ -90,8 +93,8 @@ export default function AdminBookManager() {
         ...formData,
         pages: formData.pages ? parseInt(formData.pages) : null,
         categoryId: 1,
-        description: "",
-        coverUrl: "",
+        description: `Google Books: ${formData.googleBooksLink || 'N/A'}`,
+        coverUrl: formData.coverUrl,
         pdfUrl: pdfUrl,
         publishYear: new Date().getFullYear(),
       });
@@ -109,6 +112,8 @@ export default function AdminBookManager() {
         pages: "",
         language: "English",
         subcategory: "",
+        coverUrl: "",
+        googleBooksLink: "",
       });
       setPdfFile(null);
       setIsAddingBook(false);
@@ -152,8 +157,36 @@ export default function AdminBookManager() {
           <div className="mb-8 px-2">
              <h2 className="text-xs uppercase tracking-wider text-white/50 font-bold mb-2">Main Menu</h2>
              <nav className="space-y-1">
-               <Button variant="ghost" className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10">
+               <Button 
+                 variant="secondary" 
+                 className="w-full justify-start bg-white/10 text-white hover:bg-white/20 border-none"
+               >
+                 <BookOpen className="mr-2 h-4 w-4" /> Book Manager
+               </Button>
+               <Button 
+                 variant="ghost" 
+                 className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
+                 onClick={() => {
+                   const setLocation = require("wouter").useLocation()[1];
+                   setLocation("/admin/dashboard");
+                 }}
+               >
                  <BookOpen className="mr-2 h-4 w-4" /> Back to Dashboard
+               </Button>
+             </nav>
+          </div>
+          <div className="px-2">
+             <h2 className="text-xs uppercase tracking-wider text-white/50 font-bold mb-2">System</h2>
+             <nav className="space-y-1">
+               <Button 
+                 variant="ghost" 
+                 className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
+                 onClick={() => {
+                   const setLocation = require("wouter").useLocation()[1];
+                   setLocation("/admin/settings");
+                 }}
+               >
+                 <Settings className="mr-2 h-4 w-4" /> Settings
                </Button>
              </nav>
           </div>
@@ -251,6 +284,26 @@ export default function AdminBookManager() {
                         value={formData.language}
                         onChange={(e) => setFormData({...formData, language: e.target.value})}
                         data-testid="input-book-language"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="coverUrl">Book Cover URL</Label>
+                      <Input
+                        id="coverUrl"
+                        placeholder="https://example.com/cover.jpg"
+                        value={formData.coverUrl}
+                        onChange={(e) => setFormData({...formData, coverUrl: e.target.value})}
+                        data-testid="input-book-cover-url"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="googleBooksLink">Google Books Link</Label>
+                      <Input
+                        id="googleBooksLink"
+                        placeholder="https://books.google.com/..."
+                        value={formData.googleBooksLink}
+                        onChange={(e) => setFormData({...formData, googleBooksLink: e.target.value})}
+                        data-testid="input-google-books-link"
                       />
                     </div>
                     <div className="md:col-span-2">

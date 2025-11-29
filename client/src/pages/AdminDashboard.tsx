@@ -213,7 +213,12 @@ export default function AdminDashboard() {
           <div className="px-2">
              <h2 className="text-xs uppercase tracking-wider text-white/50 font-bold mb-2">System</h2>
              <nav className="space-y-1">
-               <Button variant="ghost" className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10">
+               <Button 
+                 variant="ghost" 
+                 className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
+                 onClick={() => setLocation("/admin/settings")}
+                 data-testid="button-settings"
+               >
                  <Settings className="mr-2 h-4 w-4" /> Settings
                </Button>
              </nav>
@@ -308,10 +313,10 @@ export default function AdminDashboard() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="name" />
+                    <XAxis dataKey="date" />
                     <YAxis />
-                    <Tooltip />
-                    <Area type="monotone" dataKey="visits" stroke="#0A346F" fillOpacity={1} fill="url(#colorVisits)" name="Visits" />
+                    <Tooltip formatter={(value) => `${value} users`} />
+                    <Area type="monotone" dataKey="visits" stroke="#0A346F" fillOpacity={1} fill="url(#colorVisits)" name="Daily Active Users" />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -346,7 +351,7 @@ export default function AdminDashboard() {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip formatter={(value) => `${value} books`} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="flex flex-wrap justify-center gap-4 mt-4">
@@ -357,7 +362,8 @@ export default function AdminDashboard() {
                   })) : PIE_DATA).map((entry, index) => (
                     <div key={index} className="flex items-center text-xs text-gray-600">
                       <div className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: entry.color }}></div>
-                      {entry.name}
+                      <span className="font-semibold">{entry.name}</span>
+                      <span className="ml-1 text-blue-600 font-bold">({entry.value})</span>
                     </div>
                   ))}
                 </div>
