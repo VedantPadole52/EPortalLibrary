@@ -51,6 +51,10 @@ export default function AdminReports() {
     }
   ];
 
+  const printReport = (reportType: string) => {
+    setLocation(`/admin/reports/printable?type=${reportType}`);
+  };
+
   const generateReport = async (reportType: string) => {
     setGenerating(reportType);
     try {
@@ -182,6 +186,14 @@ export default function AdminReports() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex gap-2">
+                    <Button
+                      onClick={() => printReport(report.id)}
+                      className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                      data-testid={`button-print-report-${report.id}`}
+                    >
+                      <Printer className="h-4 w-4 mr-2" />
+                      Print
+                    </Button>
                     <Button
                       onClick={() => generateReport(report.id)}
                       disabled={generating === report.id}

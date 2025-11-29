@@ -18,6 +18,7 @@ import AdminCategories from "@/pages/AdminCategories";
 import AdminSettings from "@/pages/AdminSettings";
 import AdminAnnouncements from "@/pages/AdminAnnouncements";
 import AdminReports from "@/pages/AdminReports";
+import PrintableReports from "@/pages/PrintableReports";
 import QuestionBanks from "@/pages/QuestionBanks";
 import UserProfile from "@/pages/UserProfile";
 import Leaderboard from "@/pages/Leaderboard";
@@ -39,6 +40,7 @@ function Router() {
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/announcements" component={AdminAnnouncements} />
       <Route path="/admin/reports" component={AdminReports} />
+      <Route path="/admin/reports/printable" component={PrintableReports} />
       <Route path="/profile" component={UserProfile} />
       <Route path="/leaderboard" component={Leaderboard} />
       <Route component={NotFound} />
