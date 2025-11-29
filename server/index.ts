@@ -24,7 +24,28 @@ app.use(express.urlencoded({ extended: false }));
 
 // Serve static files (uploads folder) - both dev and production
 import path from "path";
-app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads")));
+import fs from "fs";
+
+// Add proper headers for PDFs to prevent browser blocks
+app.use("/uploads", (req, res, next) => {
+  if (req.path.endsWith(".pdf")) {
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline; filename=document.pdf");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  }
+  next();
+});
+
+app.use("/uploads", express.static(path.join(process.cwd(), "public/uploads"), {
+  setHeaders: (res, path) => {
+    if (path.endsWith(".pdf")) {
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", "inline");
+    }
+  }
+}));
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
