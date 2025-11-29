@@ -1,0 +1,121 @@
+Product Requirement Document (PRD) v2.0
+Project: Amravati Municipal Corporation - Digital E-Library Portal Primary Goal: Create an authoritative yet highly engaging digital library with distinct, secure access for citizens and administrators, featuring advanced real-time analytics for management.
+
+1. Brand Identity & UI/UX Strategy
+The design must balance government authority (trust, stability) with modern digital attractiveness (engagement, ease of use).
+
+1.1. Visual Authenticity (The "Government Look")
+Header Branding (Crucial): The top navigation bar serves as the seal of authenticity.
+
+Left: Amravati Municipal Corporation Logo (High resolution).
+
+Center: State Emblem of India (Lion Capital with "Satyamev Jayate"). Below it, the title: "E-Library Portal - Amravati."
+
+Typography: Use highly readable, modern sans-serif fonts like Inter or Roboto. Government sites prioritize clarity over artistic flair.
+
+1.2. Color Palette (Attractive yet Professional)
+We will use a professional palette with warm accents to avoid the "boring government site" stereotype.
+
+Primary (Authority): Royal Deep Blue (#0A346F) - Used for headers, primary navigation.
+
+Secondary (Backgrounds): Off-White / Light Gray (#F4F7F6) - Reduces eye strain during reading.
+
+Accent / Action (Engagement): Digital Green (#008C45) - For primary buttons like "Login," "Download," "Read Now."
+
+Highlight (Warmth): Subtle Gold/Saffron (#FF9933) - Used sparingly for borders or active navigation states, nodding to national colors without overwhelming.
+
+2. User Flow & Portal Separation
+To ensure security and clarity, the entry points for Citizens and Admins must be completely distinct visually and functionally.
+
+2.1. The Public Landing Page (Home)
+The root URL (/) is a public marketing page designed to attract users. No one is logged in yet.
+
+Hero Section (Attractive Hook): A full-width banner featuring a high-quality, inspiring image (e.g., a collage of digital knowledge, students studying, or an iconic Amravati landmark with a digital overlay).
+
+Headline: "Knowledge at Your Fingertips: Amravati's Digital Future."
+
+Call to Action: A large, prominent search bar: "Search thousands of books, NCERTs, and archives..."
+
+Featured Sections: Below the hero, use carousels to display book covers visually: "Trending Now," "New Arrivals," "Competitive Exam Prep."
+
+Login Navigation: The top right header contains a clear [ Citizen Login / Sign Up ] button (Green).
+
+2.2. The Citizen Login Portal
+Access: Accessed via the main header button.
+
+Design: A clean, friendly login box centered over a subtle educational background image. It feels welcoming.
+
+2.3. The Admin Login Portal
+Access: This must be separate to avoid confusion. It should be accessed via a discreet link in the website footer (e.g., "Staff/Official Login") or a specific URL path (e.g., /portal/admin-access).
+
+Design: A stricter, more formal login interface. No background images, just a clean form with the Municipal Corporation logo. It signals "official business only."
+
+3. Detailed Functional Requirements
+3.1. Citizen Portal (Post-Login)
+Once a user logs in, the interface shifts to content discovery.
+
+Dashboard: Personalized greeting ("Welcome back, Rahul").
+
+Reading History Carousel: "Continue where you left off" displaying recently opened PDFs.
+
+Book Browser: Card-based layout with high-quality book covers. Shadows (box-shadow) should be used to make the cards "pop" off the screen, making them feel clickable and attractive.
+
+Integrated PDF Reader: Users should ideally be able to read the book within the browser in a clean interface before deciding to download it.
+
+3.2. Admin Portal (The Command Center)
+Once an admin logs in, the interface shifts to data visualization and management. This interface uses a sidebar navigation layout.
+
+3.2.1. Real-Time Analytics Dashboard (Crucial Requirement)
+This is the landing page for admins. It needs to look like a modern data control center using charts and live counters.
+
+Technical Necessity: Implementing real-time tracking of "who is active and when they leave" requires WebSockets (e.g., Socket.io) alongside the standard database.
+
+Dashboard Components:
+
+Top Summary Cards (Big Numbers):
+
+Card 1: Real-Time Active Users (Live pulsing counter showing currently connected users).
+
+Card 2: Today's Total Visits (Cumulative count since midnight).
+
+Card 3: This Month's Visits (Cumulative count).
+
+Card 4: Total Registered Users.
+
+Data Visualization Graphs:
+
+User Traffic Trends (Line Graph): Showing user logins over the past 7 days vs. past 30 days.
+
+Popular Categories (Pie/Bar Chart): Visual breakdown of what is being read (e.g., 40% Competitive Exams, 30% NCERT, etc.).
+
+Live Activity Feed (The "Who & When"):
+
+A scrolling table showing recent actions:
+
+Example: [10:45 AM] User 'AmitV' logged in.
+
+Example: [10:48 AM] User 'Priya_S' started reading 'NCERT Science Class 10'.
+
+Example: [10:55 AM] User 'AmitV' logged out / disconnected.
+
+3.2.2. Management Functions
+(Standard functions as per original prompt, but presented within the sidebar layout)
+
+Book Manager: Tabular view with search/filters to edit, delete, and upload PDFs.
+
+Category Manager: Add/Edit dynamic categories.
+
+User Manager: View user list and individual reading history logs.
+
+4. Technical & Security Specs
+Tech Stack: MERN (MongoDB, Express, React, Node.js) is suitable.
+
+Real-Time Engine: Socket.io must be integrated into the Node.js backend to handle the real-time active user count and connection/disconnection events on the admin dashboard.
+
+Authentication: JWT (JSON Web Tokens).
+
+Middleware Security: Rigid separation of API routes.
+
+/api/user/* routes require a valid user token.
+
+/api/admin/* routes require a valid token AND an isAdmin: true flag check in the database.
