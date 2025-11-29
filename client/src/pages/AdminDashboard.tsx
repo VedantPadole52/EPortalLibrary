@@ -323,9 +323,12 @@ export default function AdminDashboard() {
             </Card>
 
             {/* Category Breakdown */}
-            <Card>
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
               <CardHeader>
-                <CardTitle>Popular Categories</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Popular Categories</span>
+                  <span className="text-xs font-normal text-gray-500">Click to view details</span>
+                </CardTitle>
               </CardHeader>
               <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -342,6 +345,12 @@ export default function AdminDashboard() {
                       outerRadius={80}
                       paddingAngle={5}
                       dataKey="value"
+                      onClick={(entry: any) => {
+                        toast({
+                          title: entry.name,
+                          description: `${entry.value} books in this category`,
+                        });
+                      }}
                     >
                       {(categoryStats.length > 0 ? categoryStats.map((c, i) => ({
                         name: c.name,
@@ -360,11 +369,21 @@ export default function AdminDashboard() {
                     value: c.count,
                     color: ["#0A346F", "#008C45", "#FF9933", "#9ca3af"][i % 4]
                   })) : PIE_DATA).map((entry, index) => (
-                    <div key={index} className="flex items-center text-xs text-gray-600">
+                    <button 
+                      key={index} 
+                      onClick={() => {
+                        toast({
+                          title: entry.name,
+                          description: `${entry.value} books in this category`,
+                        });
+                      }}
+                      className="flex items-center text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded transition-colors"
+                      data-testid={`button-category-${entry.name}`}
+                    >
                       <div className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: entry.color }}></div>
                       <span className="font-semibold">{entry.name}</span>
                       <span className="ml-1 text-blue-600 font-bold">({entry.value})</span>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </CardContent>

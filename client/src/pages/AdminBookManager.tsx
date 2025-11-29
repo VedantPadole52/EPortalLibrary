@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { booksApi, type Book } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 export default function AdminBookManager() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -27,6 +28,7 @@ export default function AdminBookManager() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [, setLocation] = useLocation();
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -166,10 +168,7 @@ export default function AdminBookManager() {
                <Button 
                  variant="ghost" 
                  className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
-                 onClick={() => {
-                   const setLocation = require("wouter").useLocation()[1];
-                   setLocation("/admin/dashboard");
-                 }}
+                 onClick={() => setLocation("/admin/dashboard")}
                >
                  <BookOpen className="mr-2 h-4 w-4" /> Back to Dashboard
                </Button>
@@ -181,10 +180,8 @@ export default function AdminBookManager() {
                <Button 
                  variant="ghost" 
                  className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
-                 onClick={() => {
-                   const setLocation = require("wouter").useLocation()[1];
-                   setLocation("/admin/settings");
-                 }}
+                 onClick={() => setLocation("/admin/settings")}
+                 data-testid="button-settings-sidebar"
                >
                  <Settings className="mr-2 h-4 w-4" /> Settings
                </Button>
