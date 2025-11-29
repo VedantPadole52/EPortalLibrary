@@ -5,6 +5,7 @@ import { Search, User, Bell, LogOut, Menu, Home as HomeIcon, BookOpen, Graduatio
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/LanguageContext";
 import { getTranslation, type Language } from "@/lib/translations";
+import NewsModal from "@/components/NewsModal";
 
 // Assets from reference
 const EMBLEM_URL = "https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg";
@@ -21,6 +22,8 @@ export default function Header({ variant = "public" }: HeaderProps) {
   const [showLanguageMenu, setShowLanguageMenu] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [userName, setUserName] = useState("");
+  const [newsModalOpen, setNewsModalOpen] = useState(false);
+  const [announcementCount, setAnnouncementCount] = useState(0);
 
   useEffect(() => {
     const darkMode = localStorage.getItem('darkMode') === 'true';
@@ -41,7 +44,22 @@ export default function Header({ variant = "public" }: HeaderProps) {
         console.log("Not logged in");
       }
     };
+    
+    // Fetch announcement count
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await fetch("/api/announcements?limit=50");
+        if (response.ok) {
+          const data = await response.json();
+          setAnnouncementCount(data.announcements?.length || 0);
+        }
+      } catch (error) {
+        console.log("Failed to fetch announcements");
+      }
+    };
+    
     fetchUser();
+    fetchAnnouncements();
   }, []);
 
   const toggleDarkMode = () => {
@@ -200,6 +218,19 @@ export default function Header({ variant = "public" }: HeaderProps) {
                 <GraduationCap className="h-4 w-4 mr-2" /> Competitive Exams
               </button>
 
+              <button 
+                onClick={() => setNewsModalOpen(true)}
+                className="flex items-center px-6 h-full text-sm font-medium uppercase tracking-wide hover:bg-white/10 transition-colors relative"
+                data-testid="button-latest-news"
+              >
+                <Bell className="h-4 w-4 mr-2" /> Latest News
+                {announcementCount > 0 && (
+                  <span className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {announcementCount > 9 ? '9+' : announcementCount}
+                  </span>
+                )}
+              </button>
+
               {variant === "public" && (
                 <button 
                   onClick={() => setLocation("/login")}
@@ -223,6 +254,16 @@ export default function Header({ variant = "public" }: HeaderProps) {
             </button>
             <button className="block w-full text-left px-4 py-3 text-sm text-white border-b border-blue-800">NCERT Books</button>
             <button className="block w-full text-left px-4 py-3 text-sm text-white border-b border-blue-800">Competitive Exams</button>
+            <button 
+              onClick={() => {
+                setNewsModalOpen(true);
+                setIsMobileMenuOpen(false);
+              }}
+              className="block w-full text-left px-4 py-3 text-sm text-white border-b border-blue-800 flex items-center gap-2"
+              data-testid="button-latest-news-mobile"
+            >
+              <Bell className="h-4 w-4" /> Latest News {announcementCount > 0 && `(${announcementCount})`}
+            </button>
             {variant === "public" && (
               <button 
                 onClick={() => setLocation("/login")}
@@ -234,6 +275,8 @@ export default function Header({ variant = "public" }: HeaderProps) {
           </div>
         )}
       </nav>
+
+      <NewsModal open={newsModalOpen} onOpenChange={setNewsModalOpen} />
 
       {/* Ticker (Global) */}
       <div className="bg-[#fff7ed] border-b border-[#fdba74] h-10 flex items-center overflow-hidden">
