@@ -5,6 +5,7 @@ import {
   readingHistory,
   activeSessions,
   announcements,
+  notifications,
   type User, 
   type InsertUser,
   type Book,
@@ -29,12 +30,12 @@ export interface IStorage {
   getUserStats(userId: string): Promise<{ booksRead: number; borrowed: number; points: number }>;
   
   // Book operations
-  getAllBooks(): Promise<Book[]>;
+  getAllBooks(page?: number, limit?: number): Promise<{ books: Book[]; total: number }>;
   getBook(id: number): Promise<Book | undefined>;
   createBook(book: InsertBook): Promise<Book>;
   updateBook(id: number, book: Partial<InsertBook>): Promise<Book | undefined>;
   deleteBook(id: number): Promise<boolean>;
-  searchBooks(query: string): Promise<Book[]>;
+  searchBooks(query: string, page?: number, limit?: number): Promise<{ books: Book[]; total: number }>;
   
   // Category operations
   getAllCategories(): Promise<Category[]>;
@@ -448,10 +449,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Announcements
-  async createAnnouncement(announcement: InsertAnnouncement): Promise<Announcement> {
+  async createAnnouncement(announcement: InsertAnnouncement & { createdBy?: string }): Promise<Announcement> {
     const [newAnnouncement] = await db
       .insert(announcements)
-      .values(announcement)
+      .values({
+        title: announcement.title,
+        content: announcement.content,
+        isPublished: announcement.isPublished,
+        createdBy: announcement.createdBy || ""
+      })
       .returning();
     return newAnnouncement;
   }
@@ -574,16 +580,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createNotification(notification: any): Promise<any> {
-    const [newNotif] = await db.insert(notifications).values(notification).returning();
-    return newNotif;
+    try {
+      const [newNotif] = await db.insert(notifications).values(notification).returning();
+      return newNotif;
+    } catch (error) {
+      console.error("Notification creation error:", error);
+      return null;
+    }
   }
 
   async getUnreadNotifications(userId: string): Promise<any[]> {
-    return await db.select().from(notifications).where(eq(notifications.userId, userId)).orderBy(desc(notifications.createdAt));
+    try {
+      return await db.select().from(notifications).where(eq(notifications.userId, userId)).orderBy(desc(notifications.createdAt));
+    } catch (error) {
+      return [];
+    }
   }
 
   async markNotificationAsRead(notifId: number): Promise<void> {
-    await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, notifId));
+    try {
+      await db.update(notifications).set({ isRead: true }).where(eq(notifications.id, notifId));
+    } catch (error) {
+      console.error("Mark notification error:", error);
+    }
   }
 }
 

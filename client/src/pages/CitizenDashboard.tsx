@@ -301,7 +301,7 @@ export default function CitizenDashboard() {
               </div>
               <Button 
                 className="bg-[#1e3a8a] hover:bg-[#172554]"
-                onClick={handleSearch}
+                onClick={() => handleSearch(1)}
                 data-testid="button-search"
               >
                 Search Library
