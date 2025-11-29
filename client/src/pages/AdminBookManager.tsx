@@ -11,7 +11,9 @@ import {
   Edit2, 
   Plus, 
   Search,
-  X
+  X,
+  FileUp,
+  File
 } from "lucide-react";
 import { booksApi, type Book } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +24,8 @@ export default function AdminBookManager() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddingBook, setIsAddingBook] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -59,15 +63,36 @@ export default function AdminBookManager() {
 
   const handleAddBook = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploading(true);
     
     try {
+      let pdfUrl = "";
+
+      // Upload PDF if provided
+      if (pdfFile) {
+        const formDataUpload = new FormData();
+        formDataUpload.append("file", pdfFile);
+        
+        const uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formDataUpload,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("Failed to upload PDF");
+        }
+
+        const uploadData = await uploadResponse.json();
+        pdfUrl = uploadData.fileUrl || "";
+      }
+
       const newBook = await booksApi.create({
         ...formData,
         pages: formData.pages ? parseInt(formData.pages) : null,
-        categoryId: 1, // Default to first category
+        categoryId: 1,
         description: "",
         coverUrl: "",
-        pdfUrl: "",
+        pdfUrl: pdfUrl,
         publishYear: new Date().getFullYear(),
       });
 
@@ -85,6 +110,7 @@ export default function AdminBookManager() {
         language: "English",
         subcategory: "",
       });
+      setPdfFile(null);
       setIsAddingBook(false);
     } catch (error: any) {
       toast({
@@ -92,6 +118,8 @@ export default function AdminBookManager() {
         title: "Error",
         description: error.message || "Failed to add book",
       });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -225,6 +253,26 @@ export default function AdminBookManager() {
                         data-testid="input-book-language"
                       />
                     </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="pdf-file" className="flex items-center gap-2 cursor-pointer">
+                        <FileUp className="h-4 w-4" />
+                        Upload PDF File
+                      </Label>
+                      <Input
+                        id="pdf-file"
+                        type="file"
+                        accept=".pdf"
+                        onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                        data-testid="input-pdf-file"
+                        className="mt-2"
+                      />
+                      {pdfFile && (
+                        <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 rounded border border-green-200">
+                          <File className="h-4 w-4 text-green-600" />
+                          <span className="text-sm text-green-700">{pdfFile.name}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-2 justify-end pt-4">
                     <Button
@@ -234,8 +282,8 @@ export default function AdminBookManager() {
                     >
                       Cancel
                     </Button>
-                    <Button type="submit" className="bg-primary" data-testid="button-save-book">
-                      Save Book
+                    <Button type="submit" className="bg-primary" disabled={uploading} data-testid="button-save-book">
+                      {uploading ? "Uploading..." : "Save Book"}
                     </Button>
                   </div>
                 </form>

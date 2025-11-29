@@ -1,4 +1,5 @@
 import type { Express, Request, Response, NextFunction } from "express";
+import expressApp from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import bcrypt from "bcryptjs";
@@ -8,8 +9,36 @@ import { pool } from "./db";
 import { registerSchema, loginSchema, insertBookSchema, insertCategorySchema, insertReadingHistorySchema } from "@shared/schema";
 import { fromError } from "zod-validation-error";
 import { WebSocketServer } from "ws";
+import multer, { type Multer } from "multer";
+import path from "path";
+import fs from "fs";
 
 const PgSession = connectPgSimple(session);
+
+// Setup file upload
+const uploadDir = path.join(".", "public", "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage_multer = multer({
+  storage: multer.diskStorage({
+    destination: uploadDir,
+    filename: (req: any, file: any, cb: any) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      cb(null, uniqueSuffix + path.extname(file.originalname));
+    },
+  }),
+  fileFilter: (req: any, file: any, cb: any) => {
+    const allowed = [".pdf", ".jpg", ".jpeg", ".png"];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type"));
+    }
+  },
+});
 
 // Extend Express Session to include userId and user role
 declare module "express-session" {
@@ -400,6 +429,24 @@ export async function registerRoutes(
       res.status(500).json({ message: "Failed to delete category", error: error.message });
     }
   });
+
+  // ============= FILE UPLOAD ROUTE =============
+  
+  app.post("/api/upload", requireAdmin, storage_multer.single("file"), async (req: any, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file provided" });
+      }
+
+      const fileUrl = `/uploads/${req.file.filename}`;
+      res.json({ fileUrl, message: "File uploaded successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: "Upload failed", error: error.message });
+    }
+  });
+
+  // Serve static files from public directory
+  app.use(expressApp.static(path.join(".", "public")));
 
   // ============= WEBSOCKET FOR REAL-TIME UPDATES =============
   
