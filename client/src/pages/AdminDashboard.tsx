@@ -308,9 +308,9 @@ export default function AdminDashboard() {
           {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             {/* Traffic Trend */}
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
-                <CardTitle>User Traffic Trends (Last 7 Days)</CardTitle>
+                <CardTitle className="dark:text-white">Daily Active Users (Last 7 Days)</CardTitle>
               </CardHeader>
               <CardContent className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -324,74 +324,76 @@ export default function AdminDashboard() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                     <XAxis dataKey="date" />
                     <YAxis />
-                    <Tooltip formatter={(value) => `${value} users`} />
-                    <Area type="monotone" dataKey="visits" stroke="#0A346F" fillOpacity={1} fill="url(#colorVisits)" name="Daily Active Users" />
+                    <Tooltip formatter={(value) => `${value} unique users`} />
+                    <Area type="monotone" dataKey="visits" stroke="#0A346F" fillOpacity={1} fill="url(#colorVisits)" name="Active Users" />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
 
             {/* Category Breakdown */}
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+            <Card className="cursor-pointer hover:shadow-lg transition-shadow dark:bg-gray-800 dark:border-gray-700">
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>Popular Categories</span>
-                  <span className="text-xs font-normal text-gray-500">Click to view details</span>
+                <CardTitle className="flex items-center justify-between dark:text-white">
+                  <span>📚 Category Distribution</span>
+                  <span className="text-xs font-normal text-gray-500 dark:text-gray-400">Total Books</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="h-[300px]">
+              <CardContent className="h-[320px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={categoryStats.length > 0 ? categoryStats.map((c, i) => ({
+                      data={categoryStats.length > 0 ? categoryStats.filter((c: any) => c.count > 0).map((c, i) => ({
                         name: c.name,
                         value: c.count,
-                        color: ["#0A346F", "#008C45", "#FF9933", "#9ca3af"][i % 4]
+                        color: ["#0A346F", "#008C45", "#FF9933", "#9ca3af", "#6366f1", "#ec4899"][i % 6]
                       })) : PIE_DATA}
                       cx="50%"
                       cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
+                      innerRadius={50}
+                      outerRadius={90}
+                      paddingAngle={3}
                       dataKey="value"
                       onClick={(entry: any) => {
                         toast({
-                          title: entry.name,
-                          description: `${entry.value} books in this category`,
+                          title: `📖 ${entry.name}`,
+                          description: `${entry.value} book${entry.value !== 1 ? 's' : ''} available`,
                         });
                       }}
                     >
-                      {(categoryStats.length > 0 ? categoryStats.map((c, i) => ({
+                      {(categoryStats.length > 0 ? categoryStats.filter((c: any) => c.count > 0).map((c, i) => ({
                         name: c.name,
                         value: c.count,
-                        color: ["#0A346F", "#008C45", "#FF9933", "#9ca3af"][i % 4]
+                        color: ["#0A346F", "#008C45", "#FF9933", "#9ca3af", "#6366f1", "#ec4899"][i % 6]
                       })) : PIE_DATA).map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => `${value} books`} />
+                    <Tooltip formatter={(value) => `${value} 📕`} />
                   </PieChart>
                 </ResponsiveContainer>
-                <div className="flex flex-wrap justify-center gap-4 mt-4">
-                  {(categoryStats.length > 0 ? categoryStats.map((c, i) => ({
+                <div className="space-y-2 mt-4 max-h-24 overflow-y-auto">
+                  {(categoryStats.length > 0 ? categoryStats.filter((c: any) => c.count > 0).map((c, i) => ({
                     name: c.name,
                     value: c.count,
-                    color: ["#0A346F", "#008C45", "#FF9933", "#9ca3af"][i % 4]
+                    color: ["#0A346F", "#008C45", "#FF9933", "#9ca3af", "#6366f1", "#ec4899"][i % 6]
                   })) : PIE_DATA).map((entry, index) => (
                     <button 
                       key={index} 
                       onClick={() => {
                         toast({
-                          title: entry.name,
-                          description: `${entry.value} books in this category`,
+                          title: `📖 ${entry.name}`,
+                          description: `${entry.value} book${entry.value !== 1 ? 's' : ''} available`,
                         });
                       }}
-                      className="flex items-center text-xs text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded transition-colors"
+                      className="w-full flex items-center justify-between text-xs text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded transition-colors"
                       data-testid={`button-category-${entry.name}`}
                     >
-                      <div className="w-2 h-2 rounded-full mr-1" style={{ backgroundColor: entry.color }}></div>
-                      <span className="font-semibold">{entry.name}</span>
-                      <span className="ml-1 text-blue-600 font-bold">({entry.value})</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                        <span className="font-medium text-left">{entry.name}</span>
+                      </div>
+                      <span className="font-bold px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded">{entry.value}</span>
                     </button>
                   ))}
                 </div>

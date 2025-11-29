@@ -326,34 +326,34 @@ export class DatabaseStorage implements IStorage {
     const now = new Date();
     const sixDaysAgo = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
 
-    // Daily visits for the last 7 days
+    // Daily visits for the last 7 days - count distinct active users per day
     const dailyVisits = [];
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
       const dateStr = date.toISOString().split('T')[0];
       
       const [result] = await db
-        .select({ count: sql<number>`count(*)` })
+        .select({ count: sql<number>`count(distinct ${readingHistory.userId})` })
         .from(readingHistory)
         .where(sql`DATE(${readingHistory.lastAccessedAt}) = ${dateStr}`);
       
+      const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][date.getDay()];
       dailyVisits.push({
-        date: dateStr,
+        date: dayName,
         visits: Number(result?.count || 0),
       });
     }
 
-    // Category stats
+    // Category stats - count of books per category
     const categoryStats = await db
       .select({
         name: categories.name,
-        count: sql<number>`count(${readingHistory.id})`,
+        count: sql<number>`count(distinct ${books.id})`,
       })
       .from(categories)
       .leftJoin(books, eq(categories.id, books.categoryId))
-      .leftJoin(readingHistory, eq(books.id, readingHistory.bookId))
       .groupBy(categories.id, categories.name)
-      .orderBy(sql`count(${readingHistory.id}) DESC`);
+      .orderBy(sql`count(distinct ${books.id}) DESC`);
 
     // Top books
     const topBooks = await db
