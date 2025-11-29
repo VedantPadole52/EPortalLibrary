@@ -253,8 +253,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getActiveSessionsCount(): Promise<number> {
+    // Count distinct active users (not sessions) in last 5 minutes
     const [result] = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({ count: sql<number>`count(distinct ${activeSessions.userId})` })
       .from(activeSessions)
       .where(sql`${activeSessions.lastActivityAt} > NOW() - INTERVAL '5 minutes'`);
     return Number(result?.count || 0);
@@ -291,11 +292,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTodayVisits(): Promise<number> {
-    // Count distinct users with activity TODAY from active sessions (updated in last 24 hours and today's date)
+    // Count distinct users with activity TODAY from active sessions
     const [activeResult] = await db
       .select({ count: sql<number>`count(distinct ${activeSessions.userId})` })
       .from(activeSessions)
-      .where(sql`${activeSessions.lastActivityAt} > NOW() - INTERVAL '24 hours' AND DATE(${activeSessions.lastActivityAt}) = CURRENT_DATE`);
+      .where(sql`DATE(${activeSessions.lastActivityAt}) = CURRENT_DATE`);
     
     const activeCount = Number(activeResult?.count || 0);
     if (activeCount > 0) {
