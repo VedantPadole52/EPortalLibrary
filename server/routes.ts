@@ -380,6 +380,27 @@ export async function registerRoutes(
     }
   });
 
+  // Get all users
+  app.get("/api/admin/users", requireAdmin, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json({ users });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to fetch users", error: error.message });
+    }
+  });
+
+  // Delete category
+  app.delete("/api/categories/:id", requireAdmin, async (req, res) => {
+    try {
+      const categoryId = parseInt(req.params.id);
+      const result = await storage.deleteCategory(categoryId);
+      res.json({ message: "Category deleted", deleted: result });
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to delete category", error: error.message });
+    }
+  });
+
   // ============= WEBSOCKET FOR REAL-TIME UPDATES =============
   
   const wss = new WebSocketServer({ server: httpServer, path: "/ws" });

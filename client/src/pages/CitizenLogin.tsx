@@ -140,10 +140,13 @@ export default function CitizenLogin() {
                 </Button>
               </form>
 
-              <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-                 <p className="text-sm text-gray-600">
-                   Admin? <button onClick={() => setLocation("/portal/admin-access")} className="text-[#1e3a8a] font-bold hover:underline">Login Here</button>
-                 </p>
+              <div className="mt-8 pt-6 border-t border-gray-100 text-center space-y-3">
+                <p className="text-sm text-gray-600">
+                  Don't have an account? <button onClick={() => setLocation("/register")} className="text-[#008C45] font-bold hover:underline" data-testid="link-register">Register Now</button>
+                </p>
+                <p className="text-sm text-gray-600">
+                  Admin? <button onClick={() => setLocation("/portal/admin-access")} className="text-[#1e3a8a] font-bold hover:underline" data-testid="link-admin">Login Here</button>
+                </p>
               </div>
             </div>
           </div>

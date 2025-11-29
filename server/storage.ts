@@ -58,6 +58,8 @@ export interface IStorage {
   getTodayVisits(): Promise<number>;
   getActivityLogs(limit: number): Promise<any[]>;
   getAnalyticsData(): Promise<any>;
+  getAllUsers(): Promise<User[]>;
+  deleteCategory(id: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -363,6 +365,15 @@ export class DatabaseStorage implements IStorage {
         reads: Number(b.reads || 0),
       })),
     };
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async deleteCategory(id: number): Promise<boolean> {
+    const result = await db.delete(categories).where(eq(categories.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 }
 

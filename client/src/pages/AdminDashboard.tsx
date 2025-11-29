@@ -152,11 +152,21 @@ export default function AdminDashboard() {
                >
                  <BookOpen className="mr-2 h-4 w-4" /> Book Manager
                </Button>
-               <Button variant="ghost" className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10">
+               <Button 
+                 variant="ghost" 
+                 className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
+                 onClick={() => setLocation("/admin/users")}
+                 data-testid="button-user-manager"
+               >
                  <Users className="mr-2 h-4 w-4" /> User Manager
                </Button>
-               <Button variant="ghost" className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10">
-                 <BarChart3 className="mr-2 h-4 w-4" /> Reports
+               <Button 
+                 variant="ghost" 
+                 className="w-full justify-start text-white/70 hover:text-white hover:bg-white/10"
+                 onClick={() => setLocation("/admin/categories")}
+                 data-testid="button-category-manager"
+               >
+                 <BarChart3 className="mr-2 h-4 w-4" /> Categories
                </Button>
              </nav>
           </div>
