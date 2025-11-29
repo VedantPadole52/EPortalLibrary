@@ -3,6 +3,8 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Search, User, Bell, LogOut, Menu, Home as HomeIcon, BookOpen, GraduationCap } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/lib/LanguageContext";
+import { getTranslation, type Language } from "@/lib/translations";
 
 // Assets from reference
 const EMBLEM_URL = "https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg";
@@ -15,6 +17,10 @@ interface HeaderProps {
 export default function Header({ variant = "public" }: HeaderProps) {
   const [location, setLocation] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { language, setLanguage } = useLanguage();
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+
+  const t = (key: string) => getTranslation(language, key as any);
 
   const currentDate = new Date().toLocaleDateString('en-IN', { 
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
@@ -26,28 +32,56 @@ export default function Header({ variant = "public" }: HeaderProps) {
       <div className="bg-gray-50 border-b border-gray-200 py-1 px-4 md:px-8 flex justify-between items-center text-xs text-gray-600 font-medium">
         <div className="flex gap-4 items-center">
           <span>{currentDate}</span>
-          <span className="hidden md:inline border-l pl-3 border-gray-300">Government of Maharashtra</span>
+          <span className="hidden md:inline border-l pl-3 border-gray-300">{t('government')}</span>
         </div>
         
         <div className="flex items-center gap-4">
           {variant === "citizen" && (
             <div className="flex items-center gap-2 text-blue-900">
-              <span className="font-bold">Welcome, Rahul</span>
+              <span className="font-bold">{t('welcomeBack')}</span>
               <div className="h-3 border-l border-gray-300 mx-1"></div>
             </div>
           )}
           
-          <div className="flex gap-2 items-center cursor-pointer hover:text-black">
-            <span>English</span>
-            <span className="text-[10px] opacity-50">▼</span>
+          <div className="relative">
+            <button
+              onClick={() => setShowLanguageMenu(!showLanguageMenu)}
+              className="flex gap-2 items-center cursor-pointer hover:text-black px-2 py-1 rounded hover:bg-gray-100"
+              data-testid="button-language-selector"
+            >
+              <span className="text-sm font-medium">
+                {language === 'en' ? 'EN' : language === 'mr' ? 'मर' : 'हि'}
+              </span>
+              <span className="text-[10px] opacity-50">▼</span>
+            </button>
+            {showLanguageMenu && (
+              <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-50">
+                {(['en', 'mr', 'hi'] as Language[]).map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => {
+                      setLanguage(lang);
+                      setShowLanguageMenu(false);
+                    }}
+                    className={`block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm ${
+                      language === lang ? 'bg-blue-50 font-bold' : ''
+                    }`}
+                    data-testid={`button-language-${lang}`}
+                  >
+                    {lang === 'en' ? 'English' : lang === 'mr' ? 'मराठी' : 'हिन्दी'}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {variant !== "public" && (
             <button 
               onClick={() => setLocation("/")}
               className="text-red-600 hover:text-red-800 font-bold ml-2 flex items-center gap-1"
+              data-testid="button-logout"
             >
-              <LogOut className="h-3 w-3" /> <span className="hidden sm:inline">Logout</span>
+              <LogOut className="h-3 w-3" /> <span className="hidden sm:inline">{t('logout')}</span>
             </button>
           )}
         </div>
@@ -68,10 +102,10 @@ export default function Header({ variant = "public" }: HeaderProps) {
             
             <div className="text-center md:text-left">
               <h1 className="text-xl md:text-2xl font-serif font-bold text-gray-800 uppercase tracking-tight leading-none mb-1">
-                E-Library Portal
+                {t('elibrary')}
               </h1>
               <p className="text-sm md:text-base text-gray-600 font-medium uppercase tracking-wide">
-                Amravati Municipal Corporation
+                {t('amravatiMunicipal')}
               </p>
             </div>
           </div>
