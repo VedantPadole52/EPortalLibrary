@@ -71,6 +71,16 @@ export default function AdminBookManager() {
 
   const handleAddBook = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.title.trim() || !formData.author.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Title and author are required",
+      });
+      return;
+    }
+    
     setUploading(true);
     
     try {
@@ -100,7 +110,7 @@ export default function AdminBookManager() {
           pdfUrl = fileUrl;
           // Use first page thumbnail or PDF icon as cover if no cover URL provided
           if (!coverUrl) {
-            coverUrl = fileUrl; // Show PDF in catalog
+            coverUrl = fileUrl;
           }
         } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png')) {
           // Image file - store as cover
@@ -109,13 +119,13 @@ export default function AdminBookManager() {
       }
 
       const newBook = await booksApi.create({
-        title: formData.title,
-        author: formData.author,
-        isbn: formData.isbn || null,
+        title: formData.title.trim(),
+        author: formData.author.trim(),
+        isbn: formData.isbn?.trim() || null,
         pages: formData.pages ? parseInt(formData.pages) : null,
         categoryId: 1,
-        subcategory: formData.subcategory || null,
-        description: `Google Books: ${formData.googleBooksLink || 'N/A'}`,
+        subcategory: formData.subcategory?.trim() || null,
+        description: `Google Books: ${formData.googleBooksLink?.trim() || 'N/A'}`,
         coverUrl: coverUrl,
         pdfUrl: pdfUrl || null,
         publishYear: new Date().getFullYear(),
@@ -124,7 +134,7 @@ export default function AdminBookManager() {
 
       toast({
         title: "Success",
-        description: "Book added successfully and will appear in citizen portal immediately!"
+        description: "Book added successfully!"
       });
 
       // Refresh books list
@@ -156,8 +166,8 @@ export default function AdminBookManager() {
   const handleEditBook = (book: Book) => {
     setEditingId(book.id);
     setFormData({
-      title: book.title,
-      author: book.author,
+      title: book.title || "",
+      author: book.author || "",
       isbn: book.isbn || "",
       pages: book.pages?.toString() || "",
       language: book.language || "English",
@@ -165,6 +175,7 @@ export default function AdminBookManager() {
       coverUrl: book.coverUrl || "",
       googleBooksLink: "",
     });
+    setPdfFile(null);
     setIsAddingBook(true);
   };
 
@@ -207,14 +218,23 @@ export default function AdminBookManager() {
         }
       }
 
+      if (!pdfUrl && !coverUrl) {
+        // Keep existing URLs if not updating them
+        const existing = books.find(b => b.id === editingId);
+        if (existing) {
+          if (!pdfUrl) pdfUrl = existing.pdfUrl || null;
+          if (!coverUrl) coverUrl = existing.coverUrl || null;
+        }
+      }
+
       const updatedBook = await booksApi.update(editingId!, {
-        title: formData.title,
-        author: formData.author,
-        isbn: formData.isbn || null,
+        title: formData.title.trim(),
+        author: formData.author.trim(),
+        isbn: formData.isbn?.trim() || null,
         pages: formData.pages ? parseInt(formData.pages) : null,
         categoryId: 1,
-        subcategory: formData.subcategory || null,
-        description: `Google Books: ${formData.googleBooksLink || 'N/A'}`,
+        subcategory: formData.subcategory?.trim() || null,
+        description: `Google Books: ${formData.googleBooksLink?.trim() || 'N/A'}`,
         coverUrl: coverUrl,
         pdfUrl: pdfUrl,
         publishYear: new Date().getFullYear(),
@@ -223,7 +243,7 @@ export default function AdminBookManager() {
 
       toast({
         title: "Success",
-        description: "Book updated successfully",
+        description: "Book updated successfully!",
       });
 
       setBooks(books.map(b => b.id === editingId ? updatedBook : b));

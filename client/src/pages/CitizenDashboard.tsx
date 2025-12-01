@@ -202,20 +202,28 @@ export default function CitizenDashboard() {
 
   const getBookCoverImage = (book: any) => {
     if (book.coverUrl) {
+      // Decode HTML entities in URL
+      let url = book.coverUrl
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
+      
       // For uploaded PDFs showing as covers
-      if (book.coverUrl.includes('.pdf')) {
+      if (url.includes('.pdf')) {
         return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300'%3E%3Crect fill='%23dc2626' width='200' height='300'/%3E%3Ctext x='50%25' y='45%25' font-size='16' fill='white' text-anchor='middle'%3EPDF%3C/text%3E%3Ctext x='50%25' y='55%25' font-size='12' fill='white' text-anchor='middle'%3E" + encodeURIComponent(book.title.substring(0, 20)) + "%3C/text%3E%3C/svg%3E";
       }
       // For HTTP/HTTPS external URLs (Google Books, Bing, etc)
-      if (book.coverUrl.startsWith("http")) {
-        return book.coverUrl + (book.coverUrl.includes('?') ? '&' : '?') + `t=${book.id}`; // Cache buster
+      if (url.startsWith("http")) {
+        return url + (url.includes('?') ? '&' : '?') + `t=${book.id}`; // Cache buster
       }
       // For local uploads
-      if (book.coverUrl.startsWith("/uploads")) {
-        return book.coverUrl + `?t=${book.id}`; // Cache buster
+      if (url.startsWith("/uploads")) {
+        return url + `?t=${book.id}`; // Cache buster
       }
       // Any other URL format
-      return book.coverUrl + `?t=${book.id}`;
+      return url + `?t=${book.id}`;
     }
     // Placeholder SVG if no cover URL
     return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300'%3E%3Crect fill='%231e3a8a' width='200' height='300'/%3E%3Ctext x='50%25' y='50%25' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle'%3E" + encodeURIComponent(book.title.substring(0, 15)) + "%3C/text%3E%3C/svg%3E";
