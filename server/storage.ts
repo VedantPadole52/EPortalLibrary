@@ -160,18 +160,49 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchBooks(query: string, page: number = 1, limit: number = 20): Promise<{ books: Book[]; total: number }> {
-    const searchPattern = `%${query}%`;
     const offset = (page - 1) * limit;
+    const searchPattern = `%${query}%`;
+    const exactPattern = query;
+    
+    // Get total count
     const [{ total }] = await db
       .select({ total: sql<number>`count(*)` })
       .from(books)
-      .where(sql`${books.title} ILIKE ${searchPattern} OR ${books.author} ILIKE ${searchPattern} OR ${books.subcategory} ILIKE ${searchPattern}`);
+      .where(sql`LOWER(${books.title}) LIKE LOWER(${searchPattern}) 
+               OR LOWER(${books.author}) LIKE LOWER(${searchPattern}) 
+               OR LOWER(${books.isbn}) LIKE LOWER(${searchPattern})
+               OR LOWER(${books.subcategory}) LIKE LOWER(${searchPattern})`);
+
+    // Get results with intelligent ranking:
+    // 1. Exact title match (highest priority)
+    // 2. Title starts with query
+    // 3. Title contains query
+    // 4. Exact author match
+    // 5. Author contains query
+    // 6. ISBN match
+    // 7. Subcategory match
     const bookList = await db
       .select()
       .from(books)
-      .where(sql`${books.title} ILIKE ${searchPattern} OR ${books.author} ILIKE ${searchPattern} OR ${books.subcategory} ILIKE ${searchPattern}`)
+      .where(sql`LOWER(${books.title}) LIKE LOWER(${searchPattern}) 
+               OR LOWER(${books.author}) LIKE LOWER(${searchPattern}) 
+               OR LOWER(${books.isbn}) LIKE LOWER(${searchPattern})
+               OR LOWER(${books.subcategory}) LIKE LOWER(${searchPattern})`)
+      .orderBy(
+        sql`CASE 
+          WHEN LOWER(${books.title}) = LOWER(${exactPattern}) THEN 0
+          WHEN LOWER(${books.title}) LIKE LOWER(${exactPattern} || '%') THEN 1
+          WHEN LOWER(${books.title}) LIKE LOWER(${searchPattern}) THEN 2
+          WHEN LOWER(${books.author}) = LOWER(${exactPattern}) THEN 3
+          WHEN LOWER(${books.author}) LIKE LOWER(${searchPattern}) THEN 4
+          WHEN LOWER(${books.isbn}) = LOWER(${exactPattern}) THEN 5
+          ELSE 6
+        END`,
+        desc(books.createdAt)
+      )
       .limit(limit)
       .offset(offset);
+
     return { books: bookList, total: Number(total) };
   }
 

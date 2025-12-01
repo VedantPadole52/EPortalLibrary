@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,6 +44,7 @@ export default function CitizenDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Track session on dashboard load
@@ -180,14 +181,15 @@ export default function CitizenDashboard() {
     }
   };
 
-  const handleSearch = async (page: number = 1) => {
-    if (!searchQuery.trim()) {
+  const handleSearch = async (page: number = 1, query?: string) => {
+    const searchTerm = query ?? searchQuery;
+    if (!searchTerm.trim()) {
       loadData(page);
       return;
     }
     
     try {
-      const data = await booksApi.getAll(searchQuery, page, pageSize);
+      const data = await booksApi.getAll(searchTerm, page, pageSize);
       setBooks(data.books);
       setTotalBooks(data.total);
       setCurrentPage(page);
@@ -198,6 +200,25 @@ export default function CitizenDashboard() {
         description: error.message,
       });
     }
+  };
+
+  const handleSearchInput = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+    
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    // Debounce search - trigger after 500ms of user inactivity
+    searchTimeoutRef.current = setTimeout(() => {
+      if (value.trim().length > 0) {
+        handleSearch(1, value);
+      } else {
+        loadData(1);
+      }
+    }, 500);
   };
 
   const getBookCoverImage = (book: any) => {
@@ -321,11 +342,11 @@ export default function CitizenDashboard() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                 <Input 
-                  placeholder="Search by Title, Author, or Category..." 
+                  placeholder="Search by Title, Author, ISBN, or Category..." 
                   className="pl-10 border-gray-300 focus-visible:ring-[#1e3a8a]"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  onChange={(e) => handleSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch(1, searchQuery)}
                   data-testid="input-search"
                 />
               </div>

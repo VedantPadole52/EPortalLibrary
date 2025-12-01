@@ -23,11 +23,21 @@ Preferred communication style: Simple, everyday language.
 - ✅ **Session Management**: PostgreSQL-backed sessions with 30-day expiry
 - ✅ **Compression**: Response compression enabled (6 level)
 - ✅ **File Uploads**: Verified working with proper headers (PDFs, images)
+- ✅ **Smart Search**: Intelligent ranking algorithm (exact matches first, then substring)
+- ✅ **Real-time Search**: Debounced search-as-you-type (500ms delay)
+
+### Search Algorithm Improvements
+- **Exact title matches**: Highest priority
+- **Title starts with query**: Second priority  
+- **Title contains query**: Third priority
+- **Author/ISBN/Category matches**: Lower priority
+- **Case-insensitive search**: Works with any case
+- **Real-time debounced**: Triggers after 500ms of user inactivity
 
 ### Performance Metrics
 - Response Time: 83-427ms (P95) under concurrent load
 - Success Rate: 100% (50/50 concurrent requests)
-- Database: 30 books, optimized for 1000+ with indexes
+- Database: 29 books, optimized for 1000+ with indexes
 - Production Build: Clean build, 2436 modules ✓
 - Zero LSP errors, zero TODO/FIXME codes
 
