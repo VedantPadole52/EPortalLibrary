@@ -447,8 +447,7 @@ export default function CitizenDashboard() {
                         </div>
                         <div className="p-4 flex flex-col flex-1">
                           <div className="mb-2">
-                            <span className="text-[10px] font-bold uppercase text-[#f97316] tracking-wider">{book.subcategory || 'General'}</span>
-                            <h3 className="font-bold text-gray-900 leading-tight line-clamp-2 mt-1" title={book.title}>{book.title}</h3>
+                            <h3 className="font-bold text-gray-900 leading-tight line-clamp-2" title={book.title}>{book.title}</h3>
                             <p className="text-xs text-gray-500 mt-1">{book.author}</p>
                           </div>
                           

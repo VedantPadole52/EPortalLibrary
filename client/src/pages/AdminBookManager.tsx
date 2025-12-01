@@ -22,6 +22,7 @@ import { useLocation } from "wouter";
 
 export default function AdminBookManager() {
   const [books, setBooks] = useState<Book[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddingBook, setIsAddingBook] = useState(false);
@@ -35,22 +36,26 @@ export default function AdminBookManager() {
     isbn: "",
     pages: "",
     language: "English",
-    subcategory: "",
+    categoryId: 1,
     coverUrl: "",
     googleBooksLink: "",
   });
   const { toast } = useToast();
 
   useEffect(() => {
-    loadBooks();
+    loadBooksAndCategories();
   }, []);
 
-  const loadBooks = async () => {
+  const loadBooksAndCategories = async () => {
     try {
-      const data = await booksApi.getAll();
-      setBooks(data.books);
-      if (data.books.length > 0) {
-        console.log(`Loaded ${data.books.length} books from database`);
+      const [booksData, categoriesData] = await Promise.all([
+        booksApi.getAll(),
+        fetch("/api/categories").then(r => r.json())
+      ]);
+      setBooks(booksData.books);
+      setCategories(categoriesData.categories || []);
+      if (booksData.books.length > 0) {
+        console.log(`Loaded ${booksData.books.length} books from database`);
       }
     } catch (error: any) {
       toast({
@@ -123,8 +128,7 @@ export default function AdminBookManager() {
         author: formData.author.trim(),
         isbn: formData.isbn?.trim() || null,
         pages: formData.pages ? parseInt(formData.pages) : null,
-        categoryId: 1,
-        subcategory: formData.subcategory?.trim() || null,
+        categoryId: formData.categoryId,
         description: `Google Books: ${formData.googleBooksLink?.trim() || 'N/A'}`,
         coverUrl: coverUrl,
         pdfUrl: pdfUrl || null,
@@ -146,7 +150,7 @@ export default function AdminBookManager() {
         isbn: "",
         pages: "",
         language: "English",
-        subcategory: "",
+        categoryId: categories.length > 0 ? categories[0].id : 1,
         coverUrl: "",
         googleBooksLink: "",
       });
@@ -171,7 +175,7 @@ export default function AdminBookManager() {
       isbn: book.isbn || "",
       pages: book.pages?.toString() || "",
       language: book.language || "English",
-      subcategory: book.subcategory || "",
+      categoryId: book.categoryId || 1,
       coverUrl: book.coverUrl || "",
       googleBooksLink: "",
     });
@@ -232,8 +236,7 @@ export default function AdminBookManager() {
         author: formData.author.trim(),
         isbn: formData.isbn?.trim() || null,
         pages: formData.pages ? parseInt(formData.pages) : null,
-        categoryId: 1,
-        subcategory: formData.subcategory?.trim() || null,
+        categoryId: formData.categoryId,
         description: `Google Books: ${formData.googleBooksLink?.trim() || 'N/A'}`,
         coverUrl: coverUrl,
         pdfUrl: pdfUrl,
@@ -253,7 +256,7 @@ export default function AdminBookManager() {
         isbn: "",
         pages: "",
         language: "English",
-        subcategory: "",
+        categoryId: categories.length > 0 ? categories[0].id : 1,
         coverUrl: "",
         googleBooksLink: "",
       });
@@ -362,7 +365,7 @@ export default function AdminBookManager() {
                       isbn: "",
                       pages: "",
                       language: "English",
-                      subcategory: "",
+                      categoryId: categories.length > 0 ? categories[0].id : 1,
                       coverUrl: "",
                       googleBooksLink: "",
                     });
@@ -418,14 +421,19 @@ export default function AdminBookManager() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="subcategory">Subcategory</Label>
-                      <Input
-                        id="subcategory"
-                        placeholder="E.g., History, Science"
-                        value={formData.subcategory}
-                        onChange={(e) => setFormData({...formData, subcategory: e.target.value})}
-                        data-testid="input-book-subcategory"
-                      />
+                      <Label htmlFor="category">Category</Label>
+                      <select
+                        id="category"
+                        value={formData.categoryId}
+                        onChange={(e) => setFormData({...formData, categoryId: parseInt(e.target.value)})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        required
+                        data-testid="select-book-category"
+                      >
+                        {categories.map(cat => (
+                          <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <Label htmlFor="language">Language</Label>
