@@ -878,7 +878,10 @@ Create an engaging summary that captures the essence of the book for library use
   app.post("/api/announcements", requireAdmin, async (req, res) => {
     try {
       const validated = insertAnnouncementSchema.parse(req.body);
-      const announcement = await storage.createAnnouncement(validated);
+      const announcement = await storage.createAnnouncement({
+        ...validated,
+        createdBy: req.session.userId
+      });
       res.json({ announcement });
     } catch (error: any) {
       res.status(400).json({ message: "Failed to create announcement", error: error.message });
