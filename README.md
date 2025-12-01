@@ -1,323 +1,316 @@
-# Amravati Municipal Corporation - E-Library Portal
+# 📚 Amravati E-Library Portal
 
-A full-stack digital library portal for the Amravati Municipal Corporation, providing citizens with access to thousands of books, NCERTs, and historical archives with gamification features.
+A digital library for Amravati Municipal Corporation where people can read books online.
 
-## 🚀 Quick Start
+## 🎯 What This Project Does
 
-### Prerequisites
+**For Citizens:**
+- 📚 Browse and read 1000+ books
+- 🔍 Search books by title, author, category
+- 📖 Read books online or download PDFs
+- ⭐ Rate and review books
+- 📝 Save books to wishlist
+- 🎯 Track reading progress
+- 🏅 Earn achievements and badges
+- 🔥 Build reading streaks
 
-You need the following installed on your system:
+**For Admins:**
+- ➕ Add new books with PDF upload
+- 📊 See analytics dashboard
+- 👥 Manage users
+- 🎤 Post announcements
+- 📈 Generate reports (PDF, Excel)
+- 🤖 Generate AI-powered book summaries
 
-- **Node.js** (v18 or higher) - [Download](https://nodejs.org/)
-- **npm** (comes with Node.js)
-- **PostgreSQL** (v12 or higher) - [Download](https://www.postgresql.org/download/)
-- **Git** (optional, for cloning)
+## 🛠️ Technology Used
 
-### Installation Steps
+- **Frontend:** React (website interface)
+- **Backend:** Express (server)
+- **Database:** PostgreSQL (store data)
+- **Styling:** Tailwind CSS (make it pretty)
+- **AI:** OpenAI (book summaries)
 
-#### Step 1: Extract and Navigate to Project
-```bash
-# If you have a zip file, extract it
-unzip elibrary-portal.zip
-cd elibrary-portal
+## 📊 Features
 
-# Or if cloning from git
-git clone <repository-url>
-cd elibrary-portal
-```
+✅ User Login & Registration
+✅ Search & Filter Books
+✅ Read Books Online
+✅ Download PDF
+✅ Reading History
+✅ Wishlist
+✅ Book Ratings & Reviews
+✅ Admin Dashboard
+✅ Book Management
+✅ User Management
+✅ Analytics
+✅ PDF Reports
+✅ Excel Export
+✅ Dark/Light Mode
+✅ Multiple Languages (English, Marathi, Hindi)
 
-#### Step 2: Install Dependencies
+## 📋 System Requirements
+
+**You need to install:**
+
+1. **Node.js** (v18 or higher)
+   - Website: https://nodejs.org/
+   - This runs the application
+
+2. **PostgreSQL** (v12 or higher)
+   - Website: https://www.postgresql.org/download/
+   - This stores the data
+
+3. **Git** (optional, for version control)
+   - Website: https://git-scm.com/
+
+## 🚀 Quick Start (3 Steps)
+
+### Step 1: Install Dependencies
 ```bash
 npm install
 ```
 
-This will install all required packages (React, Express, Drizzle ORM, Tailwind CSS, etc.)
-
-#### Step 3: Create Database
-
-**Option A: Using PostgreSQL CLI**
+### Step 2: Create Database
 ```bash
-# Open PostgreSQL
 psql -U postgres
-
-# Create database
 CREATE DATABASE elibrary;
-
-# Exit
 \q
 ```
 
-**Option B: Using pgAdmin GUI**
-- Open pgAdmin
-- Right-click "Databases" → Create → Database
-- Name: `elibrary`
-- Click Save
-
-#### Step 4: Environment Variables Setup
-
-Create a `.env` file in the project root with:
-
-```env
-# Database Connection
-DATABASE_URL=postgresql://postgres:your_password@localhost:5432/elibrary
-
-# OpenAI API (for AI-powered book summaries)
-OPENAI_API_KEY=sk-your-openai-api-key-here
-
-# Session Secret (can be any random string)
-SESSION_SECRET=your-secret-key-here-change-in-production
-
-# Port (optional, defaults to 5000)
-PORT=5000
-
-# Node Environment
-NODE_ENV=development
-```
-
-**Getting OPENAI_API_KEY:**
-1. Go to [openai.com](https://openai.com)
-2. Sign up or login
-3. Go to API keys section
-4. Create new secret key
-5. Copy and paste in `.env`
-
-#### Step 5: Initialize Database
-
+### Step 3: Create .env File
 ```bash
-# Run database migrations
-npm run db:push
+cp .env.example .env
+# Edit .env and add your PostgreSQL password
 ```
 
-This creates all necessary tables automatically.
-
-#### Step 6: (Optional) Seed Sample Data
-
-The database comes with sample books. To add more, you can use the Admin Panel after login.
-
-#### Step 7: Start the Application
-
-**Development Mode:**
+### Step 4: Run Locally
 ```bash
 npm run dev
+# Open: http://localhost:5000
 ```
 
-The app will start on `http://localhost:5000`
-
-**Production Mode:**
+**Or use the startup file:**
 ```bash
-npm run build
-npm start
+# Windows:
+start.bat
+
+# Mac/Linux:
+bash start.sh
+
+# Any OS:
+node start.js
 ```
+
+## 🔑 Demo Credentials
+
+**Citizen Login:**
+- Email: `demo@user.com`
+- Password: `user123`
+
+**Admin Login:**
+- Email: `admin@amc.edu`
+- Password: `admin123`
 
 ## 📁 Project Structure
 
 ```
 elibrary-portal/
-├── client/                    # Frontend React application
-│   ├── src/
-│   │   ├── pages/            # React pages (Dashboard, Login, etc.)
-│   │   ├── components/       # Reusable UI components
-│   │   ├── lib/              # API client, utilities
-│   │   └── App.tsx           # Main app component
-│   └── index.html            # Entry HTML file
-├── server/                    # Backend Express server
-│   ├── routes.ts             # API endpoints
-│   ├── storage.ts            # Database queries
-│   ├── index.ts              # Server entry point
-│   └── db.ts                 # Database configuration
-├── shared/                    # Shared code (types, schemas)
-│   └── schema.ts             # Database schema definition
-├── public/                    # Static files & uploads folder
-│   └── uploads/              # User-uploaded PDFs and images
-├── package.json              # Dependencies
-├── .env                       # Environment variables (create this)
-├── tsconfig.json             # TypeScript config
-└── README.md                 # This file
+├── client/              ← Website (React)
+├── server/              ← Backend API (Express)
+├── shared/              ← Shared code (Database schema)
+├── public/              ← Static files
+├── package.json         ← Dependencies
+├── .env.example         ← Environment template
+├── README.md            ← This file
+├── RUN_LOCALLY.md       ← How to run locally
+├── DEPLOYMENT.md        ← How to deploy
+├── start.js             ← Auto setup (Node.js)
+├── start.sh             ← Auto setup (Mac/Linux)
+└── start.bat            ← Auto setup (Windows)
 ```
 
-## 🔑 Test Credentials
+## 🗄️ Database Tables
 
-After installation, you can login with these demo accounts:
+- **users** - User accounts and profiles
+- **books** - Book catalog
+- **categories** - Book categories
+- **reading_history** - What users read
+- **announcements** - Admin announcements
+- **reading_streaks** - Reading streaks
+- **reading_goals** - Reading goals
+- **book_ratings** - Book ratings and reviews
+- **reading_wishlist** - User wishlists
+- **achievements** - User badges
 
-### Citizen Account
-- **Email:** demo@user.com
-- **Password:** user123
-
-### Admin Account
-- **Email:** admin@amc.edu
-- **Password:** admin123
-
-## 🛠️ Available Commands
+## 📝 Available Commands
 
 ```bash
-# Development
-npm run dev              # Start dev server with hot reload
+# Start development server
+npm run dev
 
-# Production
-npm run build           # Build for production
-npm start              # Start production server
+# Build for production
+npm run build
 
-# Database
-npm run db:push        # Sync database schema
-npm run db:studio      # Open Drizzle Studio (GUI for database)
+# Run production server
+npm start
 
-# Code Quality
-npm run lint           # Run linter
-npm run type-check     # Check TypeScript errors
+# Initialize/sync database
+npm run db:push
+
+# Open database GUI
+npm run db:studio
 ```
 
-## 📋 System Requirements
+## 📚 Documentation Files
 
-| Component | Minimum | Recommended |
-|-----------|---------|------------|
-| Node.js   | v16     | v18+       |
-| RAM       | 512MB   | 2GB+       |
-| Storage   | 500MB   | 1GB+       |
-| PostgreSQL| v10     | v12+       |
+- **README.md** ← You are here (Project overview)
+- **RUN_LOCALLY.md** ← Step-by-step to run locally
+- **DEPLOYMENT.md** ← Step-by-step to deploy
+- **start.js/start.sh/start.bat** ← Auto setup files
 
-## 🔧 Troubleshooting
+## 🆘 Troubleshooting
 
-### Issue: "Cannot find module" error
+### "npm: command not found"
+→ Install Node.js from https://nodejs.org/
 
-**Solution:**
-```bash
-# Clear node_modules and reinstall
-rm -rf node_modules
-npm install
-```
+### "PostgreSQL not found"
+→ Install PostgreSQL from https://www.postgresql.org/download/
 
-### Issue: Database connection error
+### "Database connection error"
+→ Check `.env` file has correct DATABASE_URL
 
-**Solution:**
-1. Check PostgreSQL is running: `psql --version`
-2. Verify credentials in `.env` match your PostgreSQL setup
-3. Ensure database exists: `psql -U postgres -l`
-4. Test connection: `psql postgresql://postgres:password@localhost:5432/elibrary`
+### "Port 5000 already in use"
+→ Set `PORT=3000 npm run dev` for different port
 
-### Issue: Port 5000 already in use
+### "Cannot connect to database"
+→ Make sure PostgreSQL service is running on your system
 
-**Solution:**
-```bash
-# Use different port
-PORT=3000 npm run dev
+## 🚀 Next Steps
 
-# Or kill process using port 5000
-# On macOS/Linux:
-lsof -ti:5000 | xargs kill -9
+1. ✅ Install Node.js and PostgreSQL
+2. ✅ Run: `npm install`
+3. ✅ See: **RUN_LOCALLY.md** for full setup
+4. ✅ See: **DEPLOYMENT.md** for going live
 
-# On Windows:
-netstat -ano | findstr :5000
-taskkill /PID <PID> /F
-```
+## 📞 Quick Reference
 
-### Issue: OpenAI API errors
+| What to Do | See |
+|-----------|-----|
+| Run locally | RUN_LOCALLY.md |
+| Deploy online | DEPLOYMENT.md |
+| Auto setup | start.bat (Windows) or start.sh (Mac/Linux) |
+| Environment variables | .env.example |
 
-**Solution:**
-1. Verify API key is correct in `.env`
-2. Check OpenAI account has credits/quota
-3. Test key: `curl https://api.openai.com/v1/models -H "Authorization: Bearer YOUR_KEY"`
+## ✨ Key Features Explained
 
-## 📊 Features
+### Reading History
+See all books you've read and your progress.
 
-✅ **Citizen Portal**
-- Browse 1000+ books
-- Real-time search with smart ranking
-- PDF viewer (online & offline download)
-- Reading history & progress tracking
-- Wishlist & bookmarks
-- Gamification (reading streaks, achievements, goals)
-- Profile with statistics
+### Wishlist
+Save books to read later.
 
-✅ **Admin Portal**
-- Book management (add, edit, delete)
-- PDF upload support
-- User management & blocking
-- Category management
-- Analytics dashboard
-- PDF & Excel report generation
-- Announcement posting
-- AI-powered book summaries
+### Achievements
+Earn badges for:
+- Reading 7 days in a row
+- Reading 10 books
+- First book completed
+- And more!
 
-✅ **Technical**
-- PostgreSQL database with 10+ indexes
-- Session-based authentication
-- Rate limiting (100 req/min)
-- Response compression
-- Real-time data sync
-- Multi-language support (English, Marathi, Hindi)
-- Dark/Light mode
+### Reading Streak
+Number of consecutive days you've read.
+
+### Book Ratings
+Rate books 1-5 stars and write reviews.
+
+### Admin Analytics
+See:
+- Total users
+- Books read
+- Popular categories
+- Top books
+
+### PDF Reports
+Download library statistics as PDF or Excel.
+
+## 🔐 Security
+
+- Passwords are encrypted
+- Sessions are secure
+- Only admins can add books
+- User data is protected
+
+## 📱 Device Support
+
+✅ Desktop (Windows, Mac, Linux)
+✅ Tablet
+✅ Mobile (iPhone, Android)
+
+## 🌐 Languages Supported
+
+✅ English
+✅ Marathi
+✅ Hindi
+
+## 📊 Performance
+
+- Handles 1000+ books
+- Fast search results
 - Responsive design
+- Optimized for mobile
 
-## 🚀 Deployment
+## 🎓 Learning Path
 
-### Deploying to Replit
+1. Start with login
+2. Browse books
+3. Read a book
+4. Rate and review
+5. Check profile and achievements
+6. (If admin) Manage books and users
 
-1. Push code to GitHub
-2. Go to [replit.com](https://replit.com)
-3. Click "Create Repl" → Import from GitHub
-4. Select your repository
-5. Set environment variables in Secrets
-6. Click Run
+## ❓ FAQ
 
-### Deploying to Other Platforms
+**Q: Do I need internet?**
+A: Yes, to access the app. But can work with slow connection.
 
-The app can be deployed to:
-- Heroku
-- Vercel (frontend) + Railway/Render (backend)
-- DigitalOcean
-- AWS
-- Self-hosted servers
+**Q: Can I download books?**
+A: Yes, PDFs can be downloaded offline reading.
 
-See deployment guides in each platform's documentation.
+**Q: How many users can use it?**
+A: Unlimited, but recommended for 100+ users.
 
-## 📚 Database Tables
+**Q: Can I change the branding?**
+A: Yes, edit colors and text in settings.
 
-- `users` - User accounts with roles
-- `books` - Book catalog with metadata
-- `categories` - Book categories
-- `reading_history` - User reading progress
-- `active_sessions` - Real-time user sessions
-- `announcements` - Admin announcements
-- `reading_streaks` - User reading streaks
-- `reading_goals` - Annual reading targets
-- `book_ratings` - Ratings and reviews
-- `reading_wishlist` - User wishlists
-- `achievements` - User badges and achievements
+**Q: Is it free?**
+A: Yes, but hosting costs money (see DEPLOYMENT.md).
 
-## 🛡️ Security Notes
+## 🎯 Get Started Now!
 
-- Change `SESSION_SECRET` in production
-- Never commit `.env` file
-- Keep `OPENAI_API_KEY` secure
-- Enable HTTPS in production
-- Regular database backups recommended
-- Update dependencies periodically
+```bash
+# Option 1: Auto setup (Easiest)
+bash start.sh          # Mac/Linux
+# or
+start.bat              # Windows
 
-## 📞 Support
+# Option 2: Manual setup (Full control)
+npm install
+npm run db:push
+npm run dev
+```
 
-For issues or questions:
-1. Check Troubleshooting section above
-2. Review logs in console
-3. Check PostgreSQL is running
-4. Verify environment variables
-5. Ensure Node.js version is compatible
+Then open: **http://localhost:5000**
 
-## 📄 License
+## 📚 Files To Read
 
-This project is for Amravati Municipal Corporation.
-
-## 🎯 Next Steps
-
-1. ✅ Install dependencies: `npm install`
-2. ✅ Create `.env` file with credentials
-3. ✅ Setup PostgreSQL database
-4. ✅ Run migrations: `npm run db:push`
-5. ✅ Start application: `npm run dev`
-6. ✅ Open http://localhost:5000
-7. ✅ Login with demo credentials
+| File | Purpose |
+|------|---------|
+| This file (README.md) | Project overview ← You are here |
+| RUN_LOCALLY.md | How to run locally |
+| DEPLOYMENT.md | How to deploy |
+| .env.example | Environment template |
 
 ---
 
-**Happy Learning! 📚**
+**Ready to start? See RUN_LOCALLY.md!** 🚀
 
-For the latest updates and documentation, visit the project repository.
+Good luck! 📚
