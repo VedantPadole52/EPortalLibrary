@@ -201,11 +201,24 @@ export default function CitizenDashboard() {
   };
 
   const getBookCoverImage = (book: any) => {
-    if (book.coverUrl && (book.coverUrl.startsWith("http") || book.coverUrl.startsWith("/uploads"))) {
-      return book.coverUrl; // Real uploaded or external image
+    if (book.coverUrl) {
+      // For uploaded PDFs showing as covers
+      if (book.coverUrl.includes('.pdf')) {
+        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300'%3E%3Crect fill='%23dc2626' width='200' height='300'/%3E%3Ctext x='50%25' y='45%25' font-size='16' fill='white' text-anchor='middle'%3EPDF%3C/text%3E%3Ctext x='50%25' y='55%25' font-size='12' fill='white' text-anchor='middle'%3E" + encodeURIComponent(book.title.substring(0, 20)) + "%3C/text%3E%3C/svg%3E";
+      }
+      // For HTTP/HTTPS external URLs (Google Books, Bing, etc)
+      if (book.coverUrl.startsWith("http")) {
+        return book.coverUrl + (book.coverUrl.includes('?') ? '&' : '?') + `t=${book.id}`; // Cache buster
+      }
+      // For local uploads
+      if (book.coverUrl.startsWith("/uploads")) {
+        return book.coverUrl + `?t=${book.id}`; // Cache buster
+      }
+      // Any other URL format
+      return book.coverUrl + `?t=${book.id}`;
     }
     // Placeholder SVG if no cover URL
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300'%3E%3Crect fill='%231e3a8a' width='200' height='300'/%3E%3Ctext x='50%25' y='50%25' font-size='24' fill='white' text-anchor='middle' dominant-baseline='middle'%3E" + encodeURIComponent(book.title.substring(0, 15)) + "%3C/text%3E%3C/svg%3E";
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300'%3E%3Crect fill='%231e3a8a' width='200' height='300'/%3E%3Ctext x='50%25' y='50%25' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle'%3E" + encodeURIComponent(book.title.substring(0, 15)) + "%3C/text%3E%3C/svg%3E";
   };
 
   const filteredBooks = books.filter(book => {
@@ -358,15 +371,17 @@ export default function CitizenDashboard() {
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {filteredBooks.map((book) => (
                       <div key={book.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all group flex flex-col" data-testid={`card-book-${book.id}`}>
-                        <div className="relative aspect-[2/3] overflow-hidden bg-gray-100">
+                        <div className="relative aspect-[2/3] overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center">
                           <img 
                             src={getBookCoverImage(book)} 
                             alt={book.title} 
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                             loading="lazy"
+                            crossOrigin="anonymous"
                             onError={(e) => {
                               const img = e.target as HTMLImageElement;
-                              img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300'%3E%3Crect fill='%231e3a8a' width='200' height='300'/%3E%3Ctext x='50%25' y='50%25' font-size='20' fill='white' text-anchor='middle' dominant-baseline='middle'%3EBook Cover%3C/text%3E%3C/svg%3E";
+                              // Fallback to styled placeholder showing book title
+                              img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300'%3E%3Crect fill='%234f46e5' width='200' height='300'/%3E%3Crect fill='%23818cf8' width='200' height='200' y='50'/%3E%3Ctext x='100' y='150' font-size='14' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'%3E" + encodeURIComponent(book.title.substring(0, 18)) + "%3C/text%3E%3C/svg%3E";
                             }}
                             data-testid={`img-book-cover-${book.id}`}
                           />
