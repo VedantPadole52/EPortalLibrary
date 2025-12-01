@@ -214,16 +214,20 @@ export default function CitizenDashboard() {
       if (url.includes('.pdf')) {
         return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300'%3E%3Crect fill='%23dc2626' width='200' height='300'/%3E%3Ctext x='50%25' y='45%25' font-size='16' fill='white' text-anchor='middle'%3EPDF%3C/text%3E%3Ctext x='50%25' y='55%25' font-size='12' fill='white' text-anchor='middle'%3E" + encodeURIComponent(book.title.substring(0, 20)) + "%3C/text%3E%3C/svg%3E";
       }
+      
+      // Generate cache buster from updatedAt timestamp (changes when book is updated)
+      const cacheBuster = book.updatedAt ? new Date(book.updatedAt).getTime() : book.id;
+      
       // For HTTP/HTTPS external URLs (Google Books, Bing, etc)
       if (url.startsWith("http")) {
-        return url + (url.includes('?') ? '&' : '?') + `t=${book.id}`; // Cache buster
+        return url + (url.includes('?') ? '&' : '?') + `v=${cacheBuster}`;
       }
       // For local uploads
       if (url.startsWith("/uploads")) {
-        return url + `?t=${book.id}`; // Cache buster
+        return url + `?v=${cacheBuster}`;
       }
       // Any other URL format
-      return url + `?t=${book.id}`;
+      return url + `?v=${cacheBuster}`;
     }
     // Placeholder SVG if no cover URL
     return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300'%3E%3Crect fill='%231e3a8a' width='200' height='300'/%3E%3Ctext x='50%25' y='50%25' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle'%3E" + encodeURIComponent(book.title.substring(0, 15)) + "%3C/text%3E%3C/svg%3E";

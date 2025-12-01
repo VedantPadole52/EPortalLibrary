@@ -66,11 +66,13 @@ export const books = pgTable("books", {
   aiSummary: text("ai_summary"),
   summaryGeneratedAt: timestamp("summary_generated_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const insertBookSchema = createInsertSchema(books).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
   aiSummary: true,
   summaryGeneratedAt: true,
 });
