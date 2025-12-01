@@ -55,11 +55,11 @@ export default function CitizenDashboard() {
     // Load notifications
     fetch("/api/notifications").then(r => r.json()).then(d => setNotifications(d.notifications || [])).catch(() => {});
     
-    // Refresh books every 3 seconds to show new admin-added books
+    // Refresh books every 2 seconds to show new admin-added books and real-time cover updates
     const interval = setInterval(() => {
       loadData();
       loadBookmarks();
-    }, 3000);
+    }, 2000);
     
     return () => clearInterval(interval);
   }, []);

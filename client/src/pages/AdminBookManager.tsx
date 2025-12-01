@@ -510,7 +510,8 @@ export default function AdminBookManager() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Title</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Author</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">ISBN</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Category</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">PDF Uploaded</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Cover URL</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase">Actions</th>
                   </tr>
                 </thead>
@@ -520,7 +521,24 @@ export default function AdminBookManager() {
                       <td className="px-6 py-4 text-sm text-gray-900 font-medium">{book.title}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{book.author}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{book.isbn || "-"}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{book.subcategory || "-"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {book.pdfUrl ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                            <File className="h-3 w-3" /> Uploaded
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {book.coverUrl ? (
+                          <span className="inline-block max-w-xs truncate px-2 py-1 bg-blue-50 rounded text-xs border border-blue-200">
+                            ✓ {book.coverUrl.substring(0, 30)}...
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </td>
                       <td className="px-6 py-4 text-sm flex gap-2">
                         <Button
                           size="sm"
@@ -528,6 +546,7 @@ export default function AdminBookManager() {
                           className="text-blue-600 border-blue-200 hover:bg-blue-50"
                           onClick={() => handleEditBook(book)}
                           data-testid={`button-edit-book-${book.id}`}
+                          title="Edit book"
                         >
                           <Edit2 className="h-4 w-4" />
                         </Button>
@@ -537,6 +556,7 @@ export default function AdminBookManager() {
                           className="text-red-600 border-red-200 hover:bg-red-50"
                           onClick={() => handleDeleteBook(book.id)}
                           data-testid={`button-delete-book-${book.id}`}
+                          title="Delete book"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
