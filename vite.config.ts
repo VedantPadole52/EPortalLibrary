@@ -30,29 +30,30 @@ export default defineConfig({
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
     },
   },
-  css: {
-    postcss: {
-      plugins: [],
-    },
-  },
   root: path.resolve(import.meta.dirname, "client"),
+  
+  // --- THE FIX STARTS HERE ---
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    // 1. Output directly to "dist" (Fixes the Download error)
+    outDir: path.resolve(import.meta.dirname, "dist"), 
     emptyOutDir: true,
-    // --- START OF FIX ---
-    chunkSizeWarningLimit: 3000, // Silences the warning
+    
+    // 2. Increase limit so the warning disappears
+    chunkSizeWarningLimit: 3000, 
+    
+    // 3. Split the code (Fixes the 2.7MB file size)
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // Puts third-party libraries (React, etc.) in a separate file
           if (id.includes('node_modules')) {
-            return 'vendor';
+            return 'vendor'; // Puts React/libraries in a separate file
           }
         },
       },
     },
-    // --- END OF FIX ---
   },
+  // --- THE FIX ENDS HERE ---
+
   server: {
     host: "0.0.0.0",
     allowedHosts: true,
